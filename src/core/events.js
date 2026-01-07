@@ -118,6 +118,20 @@ export function createKeyboardHandler(handlers) {
     destroy() {
       document.removeEventListener('keydown', handleKeyDown);
     },
+
+    /**
+     * Temporarily deactivate the handler
+     */
+    deactivate() {
+      document.removeEventListener('keydown', handleKeyDown);
+    },
+
+    /**
+     * Re-activate the handler
+     */
+    activate() {
+      document.addEventListener('keydown', handleKeyDown);
+    },
   };
 }
 
