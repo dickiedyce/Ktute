@@ -139,54 +139,32 @@ export function createKeyboardRenderer(container, options = {}) {
     const leftMaxWidth = Math.max(...Object.values(leftRowWidths), 0);
     
     const rightOffset = leftMaxWidth * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP;
+    const thumbY = (Math.max(...leftKeys.map(k => k.row), ...rightKeys.map(k => k.row)) + 1) * (KEY_HEIGHT + KEY_GAP) + THUMB_OFFSET_Y;
 
-    // Render left hand keys - right-align shorter rows (toward center)
-    for (const key of leftKeys) {
-      const rowWidth = leftRowWidths[key.row] || 0;
-      const inset = (leftMaxWidth - rowWidth) * (KEY_WIDTH + KEY_GAP);
-      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-      const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
-      const y = key.row * (KEY_HEIGHT + KEY_GAP);
-      keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb: false });
-      maxX = Math.max(maxX, x + keyWidth);
-      maxY = Math.max(maxY, y + KEY_HEIGHT);
-    }
-
-    // Render right hand keys (left-aligned, which is toward center)
-    for (const key of rightKeys) {
-      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-      const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
-      const y = key.row * (KEY_HEIGHT + KEY_GAP);
-      keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb: false });
-      maxX = Math.max(maxX, x + keyWidth);
-      maxY = Math.max(maxY, y + KEY_HEIGHT);
-    }
-
-    // Calculate thumb row Y position
-    const thumbY = maxY + THUMB_OFFSET_Y;
-    
-    // Calculate thumb max width
-    const leftThumbMaxWidth = leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0);
-
-    // Render left thumb keys - right-aligned (toward center)
-    for (const key of leftThumb) {
-      const inset = (leftMaxWidth - leftThumbMaxWidth) * (KEY_WIDTH + KEY_GAP);
-      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-      const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
-      const y = thumbY;
-      keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb: true });
-      maxX = Math.max(maxX, x + keyWidth);
-      maxY = Math.max(maxY, y + KEY_HEIGHT);
-    }
-
-    // Render right thumb keys (left-aligned, which is toward center)
-    for (const key of rightThumb) {
-      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-      const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
-      const y = thumbY;
-      keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb: true });
-      maxX = Math.max(maxX, x + keyWidth);
-      maxY = Math.max(maxY, y + KEY_HEIGHT);
+    // Process keys in original order to match mapping.keys array
+    for (const key of layout.keys) {
+      const isThumb = key.isThumb;
+      const y = isThumb ? thumbY : key.row * (KEY_HEIGHT + KEY_GAP);
+      
+      if (key.hand === 'left') {
+        // Left hand keys - right-align shorter rows (toward center)
+        const rowWidth = isThumb 
+          ? leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0)
+          : leftRowWidths[key.row] || 0;
+        const inset = (leftMaxWidth - rowWidth) * (KEY_WIDTH + KEY_GAP);
+        const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
+        const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
+        keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb });
+        maxX = Math.max(maxX, x + keyWidth);
+        maxY = Math.max(maxY, y + KEY_HEIGHT);
+      } else {
+        // Right hand keys (left-aligned, which is toward center)
+        const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
+        const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
+        keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb });
+        maxX = Math.max(maxX, x + keyWidth);
+        maxY = Math.max(maxY, y + KEY_HEIGHT);
+      }
     }
 
     return {
