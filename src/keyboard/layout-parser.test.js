@@ -202,6 +202,25 @@ row0: 1 2 3 | 6 7 8
       expect(mapping.fingers).toContain(8);
     });
 
+    it('should handle dot notation for no finger assignment on blank keys', () => {
+      const input = `
+[mapping:with-blanks]
+base: test
+
+row0: a _ b | c _ d
+
+fingers:
+row0: 1 . 2 | 3 . 4
+`;
+      const mapping = parseKeyMapping(input);
+      
+      expect(mapping.fingers).toBeDefined();
+      expect(mapping.fingers).toHaveLength(6);
+      // Dot should be converted to null or 0
+      expect(mapping.fingers[1]).toBe(null);
+      expect(mapping.fingers[4]).toBe(null);
+    });
+
     it('should handle special keys', () => {
       const input = `
 [mapping:specials]
