@@ -199,9 +199,6 @@
   gap: var(--space-6);
   flex: 1;
   min-height: 0;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
 }
 
 .editor-sidebar {
