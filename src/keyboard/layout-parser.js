@@ -172,8 +172,9 @@ export function parseCombinedLayout(input) {
             const rightPart = parts[1] || null;
             
             if (parsingFingers) {
-              // Finger assignments - support dots for "no finger" on blank keys
-              const allValues = parts.flatMap(part => part.split(/\s+/));
+              // Finger assignments - space-separated values, one per key
+              // Support dots for "no finger" on blank keys
+              const allValues = parts.flatMap(part => part.split(/\s+/).filter(v => v !== ''));
               fingerValues.push(...allValues.map(v => v === '.' ? null : parseInt(v, 10)));
             } else {
               // Parse left hand - track position including gaps

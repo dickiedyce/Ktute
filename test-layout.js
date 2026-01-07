@@ -14,9 +14,9 @@ row2: ¦     z:1 ¦     ¦ ¦   x:1 ¦   ¦ ¦   m:1 ¦   ¦ ¦   c:1 ¦   | ¦ 
 thumb: gui alt spc | ent alt ctrl
 
 fingers:
-row0: .1...2...3...4. | .5...6...7...8.
-row1: 111.222.333.444 | 555.666.777.888
-row2: .1...2...3...4. | .5...6...7...8.
+row0: 1 2 3 4 | 5 6 7 8
+row1: 1 1 1 2 2 2 3 3 3 4 4 4 | 5 5 5 6 6 6 7 7 7 8 8 8
+row2: 1 2 3 4 | 5 6 7 8
 thumb: 4 4 4 | 5 5 5`;
 
 const result = parseCombinedLayout(input);
@@ -43,3 +43,14 @@ for (const key of leftKeys) {
 }
 console.log('Row widths:', leftRowWidths);
 console.log('Max width:', Math.max(...Object.values(leftRowWidths)));
+
+console.log('\n=== Finger Assignments ===');
+console.log('Total fingers:', result.mapping.fingers?.length);
+console.log('First 30 fingers:', result.mapping.fingers?.slice(0, 30));
+
+console.log('\n=== Keys with Fingers ===');
+result.physical.keys.slice(0, 15).forEach((k, i) => {
+  const label = result.mapping.layers[0].keys[i];
+  const finger = result.mapping.fingers?.[i];
+  console.log(`Key ${i}: label="${label}", finger=${finger}, row=${k.row}, col=${k.col}, hand=${k.hand}`);
+});
