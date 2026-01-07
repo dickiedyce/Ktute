@@ -177,7 +177,7 @@ export function parseCombinedLayout(input) {
               fingerValues.push(...allValues.map(v => v === '.' ? null : parseInt(v, 10)));
             } else {
               // Parse left hand - track position including gaps
-              const leftKeys = leftPart.split(/\s+/);
+              const leftKeys = leftPart.split(/\s+/).filter(k => k !== '');
               let leftColPos = 0;
               leftKeys.forEach((k) => {
                 const parsed = parseKeyToken(k, isCombinedFormat);
@@ -215,7 +215,7 @@ export function parseCombinedLayout(input) {
 
               // Parse right hand
               if (rightPart) {
-                const rightKeys = rightPart.split(/\s+/);
+                const rightKeys = rightPart.split(/\s+/).filter(k => k !== '');
                 let rightColPos = 0;
                 rightKeys.forEach((k) => {
                   const parsed = parseKeyToken(k, isCombinedFormat);
