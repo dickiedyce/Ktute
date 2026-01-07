@@ -131,6 +131,7 @@ export function createKeyboardRenderer(container, options = {}) {
     const rightThumb = layout.keys.filter(k => k.hand === 'right' && k.isThumb);
 
     // Calculate max width per row for proper alignment
+    // Width is based on actual physical extent (rightmost key position + its width)
     const leftRowWidths = {};
     for (const key of leftKeys) {
       const keyEnd = key.col + (key.width || 1);
@@ -147,13 +148,10 @@ export function createKeyboardRenderer(container, options = {}) {
       const y = isThumb ? thumbY : key.row * (KEY_HEIGHT + KEY_GAP);
       
       if (key.hand === 'left') {
-        // Left hand keys - right-align shorter rows (toward center)
-        const rowWidth = isThumb 
-          ? leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0)
-          : leftRowWidths[key.row] || 0;
-        const inset = (leftMaxWidth - rowWidth) * (KEY_WIDTH + KEY_GAP);
+        // Left hand keys - no inset needed, keys are positioned by their column values
+        // which already account for gaps
         const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-        const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
+        const x = key.col * (KEY_WIDTH + KEY_GAP);
         keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb });
         maxX = Math.max(maxX, x + keyWidth);
         maxY = Math.max(maxY, y + KEY_HEIGHT);
@@ -163,6 +161,7 @@ export function createKeyboardRenderer(container, options = {}) {
         const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
         keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb });
         maxX = Math.max(maxX, x + keyWidth);
+        maxY = Math.max(maxY, y + KEY_HEIGHT);
         maxY = Math.max(maxY, y + KEY_HEIGHT);
       }
     }
