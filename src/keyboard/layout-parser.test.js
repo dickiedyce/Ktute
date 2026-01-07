@@ -247,5 +247,42 @@ thumb: ctrl spc:2 | ent:2 alt
       expect(mapping.layers[0].keys).toContain('spc');
       expect(mapping.layers[0].keys).toContain('ent');
     });
+
+    it('should support key:width syntax for non-split keyboards', () => {
+      const input = `
+[layout:standard60]
+rows: 2
+columns: 6,0
+split: false
+
+row0: tab:1.5 q w e r t
+row1: ctrl:1.75 a s d f g
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      expect(physical.keys).toHaveLength(12);
+      expect(physical.split).toBe(false);
+      
+      // Check widths in row 0
+      const row0Keys = physical.keys.filter(k => k.row === 0).sort((a, b) => a.col - b.col);
+      expect(row0Keys[0].width).toBe(1.5); // tab
+      expect(row0Keys[1].width).toBe(1);   // q
+      
+      // Check column positions advance correctly with width
+      expect(row0Keys[0].col).toBe(0);     // tab at col 0
+      expect(row0Keys[1].col).toBe(1.5);   // q at col 1.5 (after 1.5-wide tab)
+      expect(row0Keys[2].col).toBe(2.5);   // w at col 2.5
+      
+      // Check widths in row 1
+      const row1Keys = physical.keys.filter(k => k.row === 1).sort((a, b) => a.col - b.col);
+      expect(row1Keys[0].width).toBe(1.75); // ctrl
+      expect(row1Keys[1].width).toBe(1);    // a
+      expect(row1Keys[0].col).toBe(0);      // ctrl at col 0
+      expect(row1Keys[1].col).toBe(1.75);   // a at col 1.75 (after 1.75-wide ctrl)
+      
+      // Check key labels
+      expect(mapping.layers[0].keys).toContain('tab');
+      expect(mapping.layers[0].keys).toContain('ctrl');
+    });
   });
 });

@@ -148,23 +148,23 @@ thumb: 4 4 4 4 | 5 5 5 5
     name: 'Standard 60% • QWERTY',
     definition: `[layout:standard60-qwerty]
 rows: 5
-columns: 14,0
+columns: 15,0
 thumb: 0,0
 split: false
 stagger: standard
 
-row0: esc 1 2 3 4 5 6 7 8 9 0 - = bspc
-row1: tab q w e r t y u i o p [ ] \\
-row2: caps a s d f g h j k l ; ' ent 0
-row3: shift z x c v b n m , . / shift 0 0
-row4: ctrl gui alt spc 0 0 0 0 0 0 alt gui menu ctrl
+row0: esc 1 2 3 4 5 6 7 8 9 0 - = bspc:2
+row1: tab:1.5 q w e r t y u i o p [ ] \\:1.5
+row2: caps:1.75 a s d f g h j k l ; ' ent:2.25
+row3: shift:2.25 z x c v b n m , . / shift:2.75
+row4: ctrl:1.25 gui:1.25 alt:1.25 spc:6.25 alt:1.25 gui:1.25 menu:1.25 ctrl:1.25
 
 fingers:
-row0: 1 1 2 3 4 4 4 5 5 5 6 7 8 8
+row0: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
 row1: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
-row2: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
-row3: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
-row4: 1 1 2 4 4 4 4 4 5 5 5 7 8 8
+row2: 1 1 2 3 4 4 5 5 6 7 8 8 8
+row3: 1 1 2 3 4 4 5 5 6 7 8 8
+row4: 1 1 1 4 7 7 8 8
 `,
   },
 };

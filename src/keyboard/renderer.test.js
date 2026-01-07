@@ -182,5 +182,30 @@ describe('Keyboard Renderer', () => {
       
       expect(rightX).toBeGreaterThan(leftX + 50); // At least 50px gap
     });
+
+    it('should render wider keys with correct width for non-split keyboards', () => {
+      const renderer = createKeyboardRenderer(container);
+      const physicalLayout = {
+        name: 'non-split',
+        split: false,
+        keys: [
+          { row: 0, col: 0, hand: 'left', width: 1.5, isThumb: false },
+          { row: 0, col: 1.5, hand: 'left', width: 1, isThumb: false },
+          { row: 0, col: 2.5, hand: 'left', width: 1, isThumb: false },
+        ],
+      };
+
+      renderer.render(physicalLayout);
+      
+      const keys = container.querySelectorAll('[data-key] rect');
+      expect(keys).toHaveLength(3);
+      
+      // First key should be wider (1.5 units)
+      const firstKeyWidth = parseFloat(keys[0].getAttribute('width'));
+      const secondKeyWidth = parseFloat(keys[1].getAttribute('width'));
+      
+      // 1.5 unit key should be ~1.5x the width of a 1 unit key
+      expect(firstKeyWidth).toBeGreaterThan(secondKeyWidth * 1.3);
+    });
   });
 });
