@@ -90,12 +90,13 @@ describe('createTypingEngine', () => {
 
     it('should allow correcting errors', () => {
       engine.input('x'); // Error at position 0
+      expect(engine.getState().errors).toHaveLength(1);
       engine.backspace();
       engine.input('h'); // Correct this time
       const state = engine.getState();
       expect(state.position).toBe(1);
-      // Original error is still recorded
-      expect(state.errors).toHaveLength(1);
+      // Error is cleared after backspace
+      expect(state.errors).toHaveLength(0);
     });
   });
 

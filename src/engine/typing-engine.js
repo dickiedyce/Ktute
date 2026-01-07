@@ -68,8 +68,8 @@ export function createTypingEngine(options = {}) {
     onInput?.(char, correct);
     onProgress?.(getState());
 
-    // Check completion when all characters are typed
-    if (state.position >= state.text.length) {
+    // Check completion - only complete when all characters typed correctly
+    if (state.position >= state.text.length && state.typed === state.text) {
       state.isComplete = true;
       onComplete?.();
     }
@@ -84,6 +84,9 @@ export function createTypingEngine(options = {}) {
       state.typed = state.typed.slice(0, -1);
       state.isComplete = false;
       state.wordIndex = calculateWordIndex();
+      
+      // Remove any error at the position we're backspacing to
+      state.errors = state.errors.filter(e => e.position !== state.position);
     }
   }
 
