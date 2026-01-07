@@ -182,7 +182,11 @@ export function parseCombinedLayout(input) {
               leftKeys.forEach((k) => {
                 const parsed = parseKeyToken(k, isCombinedFormat);
                 
-                if (parsed.isPhysicalOnly) {
+                // Check if this is a gap (¦) - width is 0, label is null
+                if (parsed.width === 0 && parsed.label === null) {
+                  // Gap - just advance position by 1
+                  leftColPos += 1;
+                } else if (parsed.isPhysicalOnly) {
                   // Physical-only format: 0 = gap, number = key width
                   if (parsed.width > 0) {
                     physical.keys.push({
@@ -216,7 +220,11 @@ export function parseCombinedLayout(input) {
                 rightKeys.forEach((k) => {
                   const parsed = parseKeyToken(k, isCombinedFormat);
                   
-                  if (parsed.isPhysicalOnly) {
+                  // Check if this is a gap (¦) - width is 0, label is null
+                  if (parsed.width === 0 && parsed.label === null) {
+                    // Gap - just advance position by 1
+                    rightColPos += 1;
+                  } else if (parsed.isPhysicalOnly) {
                     if (parsed.width > 0) {
                       physical.keys.push({
                         row: currentRowIndex,

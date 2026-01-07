@@ -393,5 +393,40 @@ row1: ctrl:1.75 a s d f g
       expect(mapping.layers[0].keys).toContain('tab');
       expect(mapping.layers[0].keys).toContain('ctrl');
     });
+
+    it('should handle gaps (¦) correctly in combined format without adding to keys', () => {
+      const input = `
+[layout:with-gaps]
+rows: 2
+columns: 5,5
+split: true
+
+row0: ¦ q ¦ w ¦ | ¦ e ¦ r ¦
+row1: a s d f g | h j k l ;
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      // Physical keys should only include actual keys, not gaps
+      expect(physical.keys).toHaveLength(14); // 2+5 on left, 2+5 on right = 14 total
+      
+      // Left hand row 0 should have keys at positions 1 and 3
+      const leftRow0 = physical.keys.filter(k => k.hand === 'left' && k.row === 0);
+      expect(leftRow0).toHaveLength(2);
+      expect(leftRow0[0].col).toBe(1); // q at position 1
+      expect(leftRow0[1].col).toBe(3); // w at position 3
+      
+      // Right hand row 0 should have keys at positions 1 and 3
+      const rightRow0 = physical.keys.filter(k => k.hand === 'right' && k.row === 0);
+      expect(rightRow0).toHaveLength(2);
+      expect(rightRow0[0].col).toBe(1); // e at position 1
+      expect(rightRow0[1].col).toBe(3); // r at position 3
+      
+      // Mapping should only contain the actual keys, not gaps
+      expect(mapping.layers[0].keys).toHaveLength(14);
+      expect(mapping.layers[0].keys).toContain('q');
+      expect(mapping.layers[0].keys).toContain('w');
+      expect(mapping.layers[0].keys).not.toContain(null);
+      expect(mapping.layers[0].keys).not.toContain('¦');
+    });
   });
 });
