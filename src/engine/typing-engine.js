@@ -64,14 +64,15 @@ export function createTypingEngine(options = {}) {
     // Update word index
     state.wordIndex = calculateWordIndex();
 
-    // Check completion
+    // Call onInput BEFORE completion check so stats are recorded
+    onInput?.(char, correct);
+    onProgress?.(getState());
+
+    // Check completion when all characters are typed
     if (state.position >= state.text.length) {
       state.isComplete = true;
       onComplete?.();
     }
-
-    onInput?.(char, correct);
-    onProgress?.(getState());
   }
 
   /**
