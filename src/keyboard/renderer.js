@@ -139,6 +139,9 @@ export function createKeyboardRenderer(container, options = {}) {
     }
     const leftMaxWidth = Math.max(...Object.values(leftRowWidths), 0);
     
+    // Calculate thumb row width for right-alignment
+    const leftThumbWidth = leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0);
+    
     const rightOffset = leftMaxWidth * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP;
     const thumbY = (Math.max(...leftKeys.map(k => k.row), ...rightKeys.map(k => k.row)) + 1) * (KEY_HEIGHT + KEY_GAP) + THUMB_OFFSET_Y;
 
@@ -148,12 +151,20 @@ export function createKeyboardRenderer(container, options = {}) {
       const y = isThumb ? thumbY : key.row * (KEY_HEIGHT + KEY_GAP);
       
       if (key.hand === 'left') {
-        // Left hand keys - no inset needed, keys are positioned by their column values
-        // which already account for gaps
         const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
-        const x = key.col * (KEY_WIDTH + KEY_GAP);
-        keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb });
-        maxX = Math.max(maxX, x + keyWidth);
+        
+        if (isThumb) {
+          // Left hand thumb keys - right-align toward center
+          const inset = (leftMaxWidth - leftThumbWidth) * (KEY_WIDTH + KEY_GAP);
+          const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
+          keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb });
+          maxX = Math.max(maxX, x + keyWidth);
+        } else {
+          // Left hand regular keys - no inset, positioned by column values
+          const x = key.col * (KEY_WIDTH + KEY_GAP);
+          keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb });
+          maxX = Math.max(maxX, x + keyWidth);
+        }
         maxY = Math.max(maxY, y + KEY_HEIGHT);
       } else {
         // Right hand keys (left-aligned, which is toward center)
@@ -161,7 +172,6 @@ export function createKeyboardRenderer(container, options = {}) {
         const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
         keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb });
         maxX = Math.max(maxX, x + keyWidth);
-        maxY = Math.max(maxY, y + KEY_HEIGHT);
         maxY = Math.max(maxY, y + KEY_HEIGHT);
       }
     }
