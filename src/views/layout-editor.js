@@ -162,12 +162,12 @@ export function createLayoutEditorView(container, options = {}) {
           <div class="editor-preview-container">
             <h3>Preview</h3>
             <div class="editor-preview"></div>
+            <p class="hint">Press <kbd>Escape</kbd> to go back • <kbd>Ctrl+S</kbd> to save</p>
           </div>
         </section>
       </div>
 
       <nav class="editor-nav">
-        <p class="hint">Press <kbd>Escape</kbd> to go back • <kbd>Ctrl+S</kbd> to save</p>
       </nav>
     `;
 
