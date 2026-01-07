@@ -7,6 +7,7 @@ import { createRouter } from './router.js';
 import { preferences } from './preferences.js';
 import { createPracticeView } from '../views/practice.js';
 import { createSettingsView } from '../views/settings.js';
+import { createLayoutEditorView } from '../views/layout-editor.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
 import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
 import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
@@ -46,7 +47,7 @@ export function initApp() {
     '/practice': () => renderPracticeView(app),
     '/lessons': () => renderView(app, 'lessons', 'Lessons'),
     '/stats': () => renderView(app, 'stats', 'Statistics'),
-    '/layout': () => renderView(app, 'layout', 'Layout Editor'),
+    '/layout': () => renderLayoutEditorView(app),
     '/settings': () => renderSettingsView(app),
   });
 }
@@ -106,6 +107,7 @@ function renderHomeView(container) {
 
 let practiceView = null;
 let settingsView = null;
+let layoutEditorView = null;
 
 /**
  * Format layout name for display
@@ -193,6 +195,21 @@ function renderSettingsView(container) {
   settingsView?.destroy();
   
   settingsView = createSettingsView(container, {
+    onBack: () => {
+      router?.navigate('/');
+    },
+  });
+}
+
+/**
+ * Render the layout editor view
+ * @param {HTMLElement} container
+ */
+function renderLayoutEditorView(container) {
+  // Clean up previous layout editor view if any
+  layoutEditorView?.destroy();
+  
+  layoutEditorView = createLayoutEditorView(container, {
     onBack: () => {
       router?.navigate('/');
     },
