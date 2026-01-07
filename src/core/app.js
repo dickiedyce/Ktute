@@ -9,9 +9,8 @@ import { createPracticeView } from '../views/practice.js';
 import { createSettingsView } from '../views/settings.js';
 import { createLayoutEditorView } from '../views/layout-editor.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
-import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
-import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
-import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
+import { parseCombinedLayout } from '../keyboard/layout-parser.js';
+import { getAllLayouts } from '../keyboard/combined-layouts.js';
 
 let keyboardHandler = null;
 let commandMenu = null;
@@ -35,10 +34,13 @@ export function initApp() {
     ],
   });
 
-  // Set up global keyboard handler
+  // Set up global keyboard handler with shortcuts
   keyboardHandler = createKeyboardHandler({
     '/': () => commandMenu.open(),
     '?': () => showHelp(),
+    'p': () => router?.navigate('/practice'),
+    'e': () => router?.navigate('/layout'),
+    's': () => router?.navigate('/settings'),
   });
 
   // Set up router
@@ -59,18 +61,16 @@ export function initApp() {
 function renderHomeView(container) {
   container.innerHTML = '';
   
-  // Get current preferences
-  const currentLayout = preferences.getPhysicalLayout();
-  const currentMapping = preferences.getKeyMapping();
-  const layouts = getBuiltinPhysicalLayouts();
-  const mappings = getBuiltinKeyMappings();
+  // Get current layout
+  const currentLayoutId = preferences.getLayout();
+  const layouts = getAllLayouts();
+  const currentLayout = layouts[currentLayoutId];
   
   const homeView = document.createElement('main');
   homeView.setAttribute('data-view', 'home');
   homeView.className = 'home-view';
   
-  const layoutDisplayName = formatLayoutName(currentLayout);
-  const mappingDisplayName = formatMappingName(currentMapping);
+  const layoutDisplayName = currentLayout?.name || currentLayoutId;
   
   homeView.innerHTML = `
     <header class="home-header">
@@ -79,12 +79,16 @@ function renderHomeView(container) {
       <p class="tagline">For split keyboards and alternative layouts</p>
     </header>
     <div class="keyboard-container">
-      <h3>${layoutDisplayName} • ${mappingDisplayName}</h3>
+      <h3>${layoutDisplayName}</h3>
       <div id="keyboard-preview"></div>
     </div>
     <nav class="home-nav">
-      <p class="hint">Press <kbd>/</kbd> to open command menu</p>
-      <p class="hint">Press <kbd>?</kbd> for help</p>
+      <div class="shortcuts">
+        <span><kbd>p</kbd> Practice</span>
+        <span><kbd>e</kbd> Editor</span>
+        <span><kbd>s</kbd> Settings</span>
+      </div>
+      <p class="hint">Press <kbd>/</kbd> for command menu • <kbd>?</kbd> for help</p>
     </nav>
   `;
   
@@ -92,15 +96,14 @@ function renderHomeView(container) {
 
   // Render keyboard preview
   const keyboardContainer = document.getElementById('keyboard-preview');
-  if (keyboardContainer) {
-    const renderer = createKeyboardRenderer(keyboardContainer);
-    const layoutDef = layouts[currentLayout];
-    const mappingDef = mappings[currentMapping];
-    
-    if (layoutDef && mappingDef) {
-      const physicalLayout = parsePhysicalLayout(layoutDef);
-      const keyMapping = parseKeyMapping(mappingDef);
-      renderer.render(physicalLayout, keyMapping, { showFingers: true });
+  if (keyboardContainer && currentLayout?.definition) {
+    try {
+      const renderer = createKeyboardRenderer(keyboardContainer);
+      const { physical, mapping } = parseCombinedLayout(currentLayout.definition);
+      renderer.render(physical, mapping, { showFingers: true });
+    } catch (e) {
+      console.error('Failed to render keyboard preview:', e);
+      keyboardContainer.innerHTML = '<p class="error">Failed to render layout</p>';
     }
   }
 }
@@ -108,37 +111,6 @@ function renderHomeView(container) {
 let practiceView = null;
 let settingsView = null;
 let layoutEditorView = null;
-
-/**
- * Format layout name for display
- * @param {string} name
- * @returns {string}
- */
-function formatLayoutName(name) {
-  const displayNames = {
-    corne: 'Corne',
-    ergodox: 'Ergodox',
-    svaalboard: 'Svaalboard',
-    standard60: 'Standard 60%',
-  };
-  return displayNames[name] || name;
-}
-
-/**
- * Format mapping name for display
- * @param {string} name
- * @returns {string}
- */
-function formatMappingName(name) {
-  const displayNames = {
-    qwerty: 'QWERTY',
-    'colemak-dh': 'Colemak-DH',
-    workman: 'Workman',
-    dvorak: 'Dvorak',
-    'qwerty-ergodox': 'QWERTY (Ergodox)',
-  };
-  return displayNames[name] || name;
-}
 
 /**
  * Render the practice view

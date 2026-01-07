@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parsePhysicalLayout, parseKeyMapping } from './layout-parser.js';
+import { parsePhysicalLayout, parseKeyMapping, parseCombinedLayout } from './layout-parser.js';
 
 describe('Layout Parser', () => {
   describe('parsePhysicalLayout', () => {
@@ -170,6 +170,82 @@ row0: ctrl+a alt+tab shift+1 | cmd+c cmd+v cmd+z
       
       expect(mapping.layers[0].keys).toContain('ctrl+a');
       expect(mapping.layers[0].keys).toContain('cmd+z');
+    });
+  });
+
+  describe('parseCombinedLayout', () => {
+    it('should parse a combined layout with keys', () => {
+      const input = `
+[layout:test-layout]
+rows: 2
+columns: 3,3
+split: true
+
+row0: q w e | r t y
+row1: a s d | f g h
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      expect(physical.name).toBe('test-layout');
+      expect(physical.rows).toBe(2);
+      expect(physical.keys).toHaveLength(12);
+      expect(mapping.layers[0].keys).toContain('q');
+      expect(mapping.layers[0].keys).toContain('h');
+    });
+
+    it('should support key:width syntax for wider keys', () => {
+      const input = `
+[layout:wide-keys]
+rows: 2
+columns: 5,0
+split: false
+
+row0: q w e r t
+row1: shift:1.5 a s d shift:1.5
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      expect(physical.keys).toHaveLength(10);
+      
+      // Check widths in row 1
+      const row1Keys = physical.keys.filter(k => k.row === 1).sort((a, b) => a.col - b.col);
+      expect(row1Keys[0].width).toBe(1.5); // first shift
+      expect(row1Keys[1].width).toBe(1);   // a
+      expect(row1Keys[4].width).toBe(1.5); // second shift
+      
+      // Check key labels are captured
+      expect(mapping.layers[0].keys).toContain('shift');
+      expect(mapping.layers[0].keys).toContain('a');
+    });
+
+    it('should support thumb row with wider keys', () => {
+      const input = `
+[layout:thumb-wide]
+rows: 1
+columns: 3,3
+thumb: 2,2
+split: true
+
+row0: q w e | r t y
+thumb: ctrl spc:2 | ent:2 alt
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      const thumbKeys = physical.keys.filter(k => k.isThumb);
+      expect(thumbKeys).toHaveLength(4);
+      
+      // Find the space key (spc:2)
+      const leftThumb = thumbKeys.filter(k => k.hand === 'left').sort((a, b) => a.col - b.col);
+      expect(leftThumb[0].width).toBe(1);  // ctrl
+      expect(leftThumb[1].width).toBe(2);  // spc
+      
+      // Find the enter key (ent:2)
+      const rightThumb = thumbKeys.filter(k => k.hand === 'right').sort((a, b) => a.col - b.col);
+      expect(rightThumb[0].width).toBe(2); // ent
+      expect(rightThumb[1].width).toBe(1); // alt
+      
+      expect(mapping.layers[0].keys).toContain('spc');
+      expect(mapping.layers[0].keys).toContain('ent');
     });
   });
 });

@@ -4,10 +4,9 @@
  */
 
 import { preferences } from '../core/preferences.js';
-import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
-import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
+import { getAllLayouts, deleteCustomLayout } from '../keyboard/combined-layouts.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
-import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
+import { parseCombinedLayout } from '../keyboard/layout-parser.js';
 
 /**
  * Create the settings view
@@ -18,18 +17,13 @@ import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.
 export function createSettingsView(container, options = {}) {
   const { onBack } = options;
 
-  // Get available layouts and mappings
-  const physicalLayouts = getBuiltinPhysicalLayouts();
-  const keyMappings = getBuiltinKeyMappings();
-
-  // Current selections
-  let currentLayout = preferences.getPhysicalLayout();
-  let currentMapping = preferences.getKeyMapping();
+  // Current selection
+  let currentLayoutId = preferences.getLayout();
 
   // DOM elements
   let layoutSelect = null;
-  let mappingSelect = null;
   let previewContainer = null;
+  let deleteBtn = null;
   let renderer = null;
 
   // Event handlers (for cleanup)
@@ -41,6 +35,8 @@ export function createSettingsView(container, options = {}) {
   function init() {
     container.innerHTML = '';
 
+    const layouts = getAllLayouts();
+
     const view = document.createElement('main');
     view.setAttribute('data-view', 'settings');
     view.className = 'settings-view';
@@ -48,36 +44,26 @@ export function createSettingsView(container, options = {}) {
     view.innerHTML = `
       <header class="settings-header">
         <h1>Settings</h1>
-        <p class="subtitle">Configure your keyboard and preferences</p>
+        <p class="subtitle">Configure your keyboard layout</p>
       </header>
 
       <section class="settings-section">
         <h2>Keyboard Layout</h2>
         
         <div class="setting-group">
-          <label for="physical-layout">Physical Layout</label>
-          <select id="physical-layout" data-setting="physical-layout">
-            ${Object.keys(physicalLayouts)
-              .map(
-                (name) =>
-                  `<option value="${name}" ${name === currentLayout ? 'selected' : ''}>${formatLayoutName(name)}</option>`
-              )
-              .join('')}
-          </select>
-          <p class="setting-description">The physical arrangement of your keyboard</p>
-        </div>
-
-        <div class="setting-group">
-          <label for="key-mapping">Key Mapping</label>
-          <select id="key-mapping" data-setting="key-mapping">
-            ${Object.keys(keyMappings)
-              .map(
-                (name) =>
-                  `<option value="${name}" ${name === currentMapping ? 'selected' : ''}>${formatMappingName(name)}</option>`
-              )
-              .join('')}
-          </select>
-          <p class="setting-description">The logical layout of your keys</p>
+          <label for="layout-select">Active Layout</label>
+          <div class="layout-select-group">
+            <select id="layout-select" data-setting="layout">
+              ${Object.entries(layouts)
+                .map(
+                  ([id, layout]) =>
+                    `<option value="${id}" ${id === currentLayoutId ? 'selected' : ''}>${layout.name}${layout.custom ? ' (custom)' : ''}</option>`
+                )
+                .join('')}
+            </select>
+            <button class="btn btn-secondary btn-small" data-action="delete-layout" disabled>Delete</button>
+          </div>
+          <p class="setting-description">Choose from built-in or custom layouts</p>
         </div>
       </section>
 
@@ -87,6 +73,7 @@ export function createSettingsView(container, options = {}) {
       </section>
 
       <nav class="settings-nav">
+        <button class="btn btn-secondary" data-action="edit-layout">Edit Layout</button>
         <p class="hint">Press <kbd>Escape</kbd> to go back</p>
       </nav>
     `;
@@ -94,9 +81,9 @@ export function createSettingsView(container, options = {}) {
     container.appendChild(view);
 
     // Get DOM references
-    layoutSelect = container.querySelector('[data-setting="physical-layout"]');
-    mappingSelect = container.querySelector('[data-setting="key-mapping"]');
+    layoutSelect = container.querySelector('[data-setting="layout"]');
     previewContainer = container.querySelector('.keyboard-preview');
+    deleteBtn = container.querySelector('[data-action="delete-layout"]');
 
     // Set up renderer
     renderer = createKeyboardRenderer(previewContainer);
@@ -106,37 +93,7 @@ export function createSettingsView(container, options = {}) {
 
     // Initial render
     updatePreview();
-  }
-
-  /**
-   * Format layout name for display
-   * @param {string} name
-   * @returns {string}
-   */
-  function formatLayoutName(name) {
-    const displayNames = {
-      corne: 'Corne / CRKBD',
-      ergodox: 'Ergodox',
-      svaalboard: 'Svaalboard',
-      standard60: 'Standard 60%',
-    };
-    return displayNames[name] || name;
-  }
-
-  /**
-   * Format mapping name for display
-   * @param {string} name
-   * @returns {string}
-   */
-  function formatMappingName(name) {
-    const displayNames = {
-      qwerty: 'QWERTY',
-      'colemak-dh': 'Colemak-DH',
-      workman: 'Workman',
-      dvorak: 'Dvorak',
-      'qwerty-ergodox': 'QWERTY (Ergodox)',
-    };
-    return displayNames[name] || name;
+    updateDeleteButton();
   }
 
   /**
@@ -144,15 +101,34 @@ export function createSettingsView(container, options = {}) {
    */
   function bindEvents() {
     const handleLayoutChange = (e) => {
-      currentLayout = e.target.value;
-      preferences.setPhysicalLayout(currentLayout);
+      currentLayoutId = e.target.value;
+      preferences.setLayout(currentLayoutId);
       updatePreview();
+      updateDeleteButton();
     };
 
-    const handleMappingChange = (e) => {
-      currentMapping = e.target.value;
-      preferences.setKeyMapping(currentMapping);
-      updatePreview();
+    const handleDelete = () => {
+      const layouts = getAllLayouts();
+      const layout = layouts[currentLayoutId];
+      
+      if (layout?.custom) {
+        if (confirm(`Delete layout "${layout.name}"?`)) {
+          deleteCustomLayout(currentLayoutId);
+          // Switch to first available layout
+          const remaining = getAllLayouts();
+          const firstId = Object.keys(remaining)[0];
+          if (firstId) {
+            currentLayoutId = firstId;
+            preferences.setLayout(currentLayoutId);
+          }
+          // Re-initialize to refresh the select
+          init();
+        }
+      }
+    };
+
+    const handleEditLayout = () => {
+      window.location.hash = '/layout';
     };
 
     const handleKeyDown = (e) => {
@@ -166,27 +142,47 @@ export function createSettingsView(container, options = {}) {
     };
 
     layoutSelect.addEventListener('change', handleLayoutChange);
-    mappingSelect.addEventListener('change', handleMappingChange);
+    deleteBtn.addEventListener('click', handleDelete);
+    
+    const editBtn = container.querySelector('[data-action="edit-layout"]');
+    if (editBtn) {
+      editBtn.addEventListener('click', handleEditLayout);
+      handlers.push({ element: editBtn, event: 'click', handler: handleEditLayout });
+    }
+    
     document.addEventListener('keydown', handleKeyDown);
 
     handlers.push(
       { element: layoutSelect, event: 'change', handler: handleLayoutChange },
-      { element: mappingSelect, event: 'change', handler: handleMappingChange },
+      { element: deleteBtn, event: 'click', handler: handleDelete },
       { element: document, event: 'keydown', handler: handleKeyDown }
     );
+  }
+
+  /**
+   * Update the delete button state
+   */
+  function updateDeleteButton() {
+    const layouts = getAllLayouts();
+    const layout = layouts[currentLayoutId];
+    deleteBtn.disabled = !layout?.custom;
   }
 
   /**
    * Update the keyboard preview
    */
   function updatePreview() {
-    const layoutDef = physicalLayouts[currentLayout];
-    const mappingDef = keyMappings[currentMapping];
+    const layouts = getAllLayouts();
+    const layout = layouts[currentLayoutId];
 
-    if (layoutDef && mappingDef) {
-      const parsedLayout = parsePhysicalLayout(layoutDef);
-      const parsedMapping = parseKeyMapping(mappingDef);
-      renderer.render(parsedLayout, parsedMapping, { showFingers: true });
+    if (layout?.definition) {
+      try {
+        const { physical, mapping } = parseCombinedLayout(layout.definition);
+        renderer.render(physical, mapping, { showFingers: true });
+      } catch (e) {
+        console.error('Failed to parse layout:', e);
+        previewContainer.innerHTML = '<p class="error">Failed to render layout</p>';
+      }
     }
   }
 

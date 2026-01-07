@@ -17,10 +17,10 @@ describe('Layout Editor View', () => {
       expect(view).not.toBeNull();
     });
 
-    it('should have tabs for physical layout and key mapping', () => {
+    it('should display layout name input', () => {
       createLayoutEditorView(container);
-      const tabs = container.querySelectorAll('[data-tab]');
-      expect(tabs.length).toBe(2);
+      const nameInput = container.querySelector('#layout-name');
+      expect(nameInput).not.toBeNull();
     });
 
     it('should display text editor for layout definition', () => {
@@ -36,11 +36,11 @@ describe('Layout Editor View', () => {
     });
   });
 
-  describe('physical layout editor', () => {
-    it('should show default layout template', () => {
+  describe('combined layout editor', () => {
+    it('should show default combined layout template', () => {
       createLayoutEditorView(container);
       const editor = container.querySelector('.layout-text-editor');
-      expect(editor.value).toContain('[physical:');
+      expect(editor.value).toContain('[layout:');
     });
 
     it('should update preview when layout text changes', () => {
@@ -50,15 +50,19 @@ describe('Layout Editor View', () => {
       
       const initialSvg = preview.innerHTML;
       
-      // Change to a valid layout
-      editor.value = `[physical:custom]
+      // Change to a valid combined layout
+      editor.value = `[layout:custom]
 rows: 2
 columns: 4,4
 split: true
 stagger: none
 
-row0: 1 1 1 1 | 1 1 1 1
-row1: 1 1 1 1 | 1 1 1 1
+row0: q w e r | u i o p
+row1: a s d f | j k l ;
+
+fingers:
+row0: 1 2 3 4 | 5 6 7 8
+row1: 1 2 3 4 | 5 6 7 8
 `;
       editor.dispatchEvent(new Event('input'));
       
@@ -80,40 +84,41 @@ row1: 1 1 1 1 | 1 1 1 1
     });
   });
 
-  describe('key mapping editor', () => {
-    it('should switch to key mapping tab', () => {
-      const { destroy } = createLayoutEditorView(container);
-      const mappingTab = container.querySelector('[data-tab="key-mapping"]');
-      
-      mappingTab.click();
-      
-      const editor = container.querySelector('.layout-text-editor');
-      expect(editor.value).toContain('[mapping:');
-      destroy();
-    });
-  });
-
   describe('save functionality', () => {
-    it('should save custom layout to storage', () => {
+    it('should save custom layout to storage with name', () => {
       const { destroy } = createLayoutEditorView(container);
       const editor = container.querySelector('.layout-text-editor');
+      const nameInput = container.querySelector('#layout-name');
       const saveBtn = container.querySelector('[data-action="save"]');
       
-      editor.value = `[physical:my-custom]
+      nameInput.value = 'Test Layout';
+      nameInput.dispatchEvent(new Event('input'));
+      
+      editor.value = `[layout:test]
 rows: 2
 columns: 3,3
 split: true
 stagger: none
 
-row0: 1 1 1 | 1 1 1
-row1: 1 1 1 | 1 1 1
+row0: q w e | u i o
+row1: a s d | j k l
+
+fingers:
+row0: 1 2 3 | 6 7 8
+row1: 1 2 3 | 6 7 8
 `;
       editor.dispatchEvent(new Event('input'));
       saveBtn.click();
       
       const customLayouts = storage.get('custom-layouts', {});
-      expect(customLayouts['my-custom']).toBeDefined();
+      expect(Object.keys(customLayouts).length).toBeGreaterThan(0);
       destroy();
+    });
+
+    it('should have save and use button', () => {
+      createLayoutEditorView(container);
+      const useBtn = container.querySelector('[data-action="use-layout"]');
+      expect(useBtn).not.toBeNull();
     });
   });
 
@@ -128,11 +133,11 @@ row1: 1 1 1 | 1 1 1
       const { destroy } = createLayoutEditorView(container);
       const dropdown = container.querySelector('[data-action="load-builtin"]');
       
-      dropdown.value = 'ergodox';
+      dropdown.value = 'ergodox-qwerty';
       dropdown.dispatchEvent(new Event('change'));
       
       const editor = container.querySelector('.layout-text-editor');
-      expect(editor.value).toContain('[physical:ergodox]');
+      expect(editor.value).toContain('[layout:ergodox-qwerty]');
       destroy();
     });
   });

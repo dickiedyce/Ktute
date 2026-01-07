@@ -1,35 +1,39 @@
 /**
  * Layout Editor View
- * Create and edit custom keyboard layouts (combined physical + keys)
+ * Create and edit custom keyboard layouts and key mappings
  */
 
 import { storage } from '../core/storage.js';
-import { preferences } from '../core/preferences.js';
-import {
-  getAllLayouts,
-  getBuiltinLayouts,
-  saveCustomLayout,
-  generateLayoutId,
-} from '../keyboard/combined-layouts.js';
+import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
+import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
-import { parseCombinedLayout } from '../keyboard/layout-parser.js';
+import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
 
-const DEFAULT_LAYOUT = `[layout:my-layout]
+const DEFAULT_PHYSICAL_LAYOUT = `[physical:custom]
 rows: 3
 columns: 6,6
 thumb: 3,3
 split: true
 stagger: none
 
-row0: tab q w e r t | y u i o p bspc
-row1: ctrl a s d f g | h j k l ; '
-row2: shift z x c v b | n m , . / shift
-thumb: gui alt spc | ent alt ctrl
+row0: 1 1 1 1 1 1 | 1 1 1 1 1 1
+row1: 1 1 1 1 1 1 | 1 1 1 1 1 1
+row2: 1 1 1 1 1 1 | 1 1 1 1 1 1
+thumb: 1 1 1 | 1 1 1
+`;
+
+const DEFAULT_KEY_MAPPING = `[mapping:custom]
+base: custom
+
+row0: q w e r t y | u i o p [ ]
+row1: a s d f g h | j k l ; ' \\
+row2: z x c v b n | m , . / - =
+thumb: esc spc tab | ent bspc del
 
 fingers:
-row0: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 | 5 5 6 7 8 8
+row0: 1 2 3 4 4 4 | 5 5 5 6 7 8
+row1: 1 2 3 4 4 4 | 5 5 5 6 7 8
+row2: 1 2 3 4 4 4 | 5 5 5 6 7 8
 thumb: 4 4 4 | 5 5 5
 `;
 
@@ -43,16 +47,16 @@ export function createLayoutEditorView(container, options = {}) {
   const { onBack } = options;
 
   // Get available layouts
-  const allLayouts = getAllLayouts();
-  const builtinLayouts = getBuiltinLayouts();
+  const physicalLayouts = getBuiltinPhysicalLayouts();
+  const keyMappings = getBuiltinKeyMappings();
 
   // Current state
-  let layoutName = 'My Custom Layout';
-  let currentText = DEFAULT_LAYOUT;
+  let activeTab = 'physical-layout';
+  let currentText = DEFAULT_PHYSICAL_LAYOUT;
   let validationError = null;
 
   // DOM elements
-  let nameInput = null;
+  let tabsContainer = null;
   let editorTextarea = null;
   let previewContainer = null;
   let errorDisplay = null;
@@ -79,24 +83,23 @@ export function createLayoutEditorView(container, options = {}) {
 
       <div class="editor-layout">
         <section class="editor-sidebar">
-          <div class="editor-name-group">
-            <label for="layout-name">Layout Name</label>
-            <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
+          <div class="editor-tabs">
+            <button class="tab-btn active" data-tab="physical-layout">Physical Layout</button>
+            <button class="tab-btn" data-tab="key-mapping">Key Mapping</button>
           </div>
 
           <div class="editor-controls">
             <label for="load-builtin">Load from built-in:</label>
             <select id="load-builtin" data-action="load-builtin">
               <option value="">-- Select --</option>
-              ${Object.entries(builtinLayouts)
-                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+              ${Object.keys(physicalLayouts)
+                .map((name) => `<option value="${name}">${formatName(name)}</option>`)
                 .join('')}
             </select>
           </div>
 
           <div class="editor-actions">
             <button class="btn btn-primary" data-action="save">Save Layout</button>
-            <button class="btn btn-secondary" data-action="use-layout">Save &amp; Use</button>
             <div class="editor-actions-row">
               <button class="btn btn-secondary" data-action="export">Export</button>
               <button class="btn btn-secondary" data-action="import">Import</button>
@@ -130,7 +133,7 @@ export function createLayoutEditorView(container, options = {}) {
     container.appendChild(view);
 
     // Get DOM references
-    nameInput = container.querySelector('#layout-name');
+    tabsContainer = container.querySelector('.editor-tabs');
     editorTextarea = container.querySelector('.layout-text-editor');
     previewContainer = container.querySelector('.editor-preview');
     errorDisplay = container.querySelector('.validation-error');
@@ -143,6 +146,15 @@ export function createLayoutEditorView(container, options = {}) {
 
     // Initial render
     updatePreview();
+  }
+
+  /**
+   * Format name for display
+   * @param {string} name
+   * @returns {string}
+   */
+  function formatName(name) {
+    return name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
   }
 
   /**
@@ -162,9 +174,28 @@ export function createLayoutEditorView(container, options = {}) {
    * Bind event handlers
    */
   function bindEvents() {
-    // Name input changes
-    const handleNameChange = () => {
-      layoutName = nameInput.value.trim() || 'My Layout';
+    // Tab switching
+    const handleTabClick = (e) => {
+      const tab = e.target.closest('[data-tab]');
+      if (!tab) return;
+
+      // Update active tab
+      tabsContainer.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
+      tab.classList.add('active');
+
+      activeTab = tab.dataset.tab;
+
+      // Update editor content
+      if (activeTab === 'physical-layout') {
+        editorTextarea.value = DEFAULT_PHYSICAL_LAYOUT;
+        updateBuiltinDropdown(physicalLayouts);
+      } else {
+        editorTextarea.value = DEFAULT_KEY_MAPPING;
+        updateBuiltinDropdown(keyMappings);
+      }
+
+      currentText = editorTextarea.value;
+      updatePreview();
     };
 
     // Text editor changes
@@ -175,19 +206,15 @@ export function createLayoutEditorView(container, options = {}) {
 
     // Load built-in layout
     const handleLoadBuiltin = (e) => {
-      const id = e.target.value;
-      if (!id) return;
+      const name = e.target.value;
+      if (!name) return;
 
-      const layout = builtinLayouts[id];
-      if (layout) {
-        editorTextarea.value = layout.definition;
-        currentText = layout.definition;
-        // Set name based on layout name
-        nameInput.value = layout.name + ' (copy)';
-        layoutName = nameInput.value;
+      const layouts = activeTab === 'physical-layout' ? physicalLayouts : keyMappings;
+      if (layouts[name]) {
+        editorTextarea.value = layouts[name];
+        currentText = layouts[name];
         updatePreview();
       }
-      e.target.value = ''; // Reset dropdown
     };
 
     // Save layout
@@ -196,8 +223,20 @@ export function createLayoutEditorView(container, options = {}) {
         return;
       }
 
-      const id = generateLayoutId(layoutName);
-      saveCustomLayout(id, layoutName, currentText);
+      // Extract name from layout text
+      const nameMatch = currentText.match(/\[(physical|mapping):([^\]]+)\]/);
+      if (!nameMatch) {
+        showError('Could not find layout name in definition');
+        return;
+      }
+
+      const type = nameMatch[1] === 'physical' ? 'custom-layouts' : 'custom-mappings';
+      const name = nameMatch[2].trim();
+
+      // Save to storage
+      const stored = storage.get(type, {});
+      stored[name] = currentText;
+      storage.set(type, stored);
 
       // Show success feedback
       const saveBtn = container.querySelector('[data-action="save"]');
@@ -206,31 +245,19 @@ export function createLayoutEditorView(container, options = {}) {
       setTimeout(() => {
         saveBtn.textContent = originalText;
       }, 2000);
-
-      return id;
-    };
-
-    // Save and use layout
-    const handleSaveAndUse = () => {
-      const id = handleSave();
-      if (id) {
-        preferences.setLayout(id);
-        // Navigate back to home
-        if (onBack) {
-          onBack();
-        } else {
-          window.location.hash = '/';
-        }
-      }
     };
 
     // Export layout
     const handleExport = () => {
+      const nameMatch = currentText.match(/\[(physical|mapping):([^\]]+)\]/);
+      const name = nameMatch ? nameMatch[2].trim() : 'layout';
+      const extension = activeTab === 'physical-layout' ? 'layout' : 'mapping';
+      
       const blob = new Blob([currentText], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${layoutName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.layout.txt`;
+      a.download = `${name}.${extension}.txt`;
       a.click();
       URL.revokeObjectURL(url);
     };
@@ -249,39 +276,18 @@ export function createLayoutEditorView(container, options = {}) {
       reader.onload = (event) => {
         editorTextarea.value = event.target.result;
         currentText = event.target.result;
-        
-        // Try to extract name from file or content
-        const nameMatch = currentText.match(/\[layout:([\w-]+)\]/);
-        if (nameMatch) {
-          const extractedName = nameMatch[1]
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-          nameInput.value = extractedName;
-          layoutName = extractedName;
-        } else {
-          nameInput.value = file.name.replace(/\.(layout|txt)$/i, '');
-          layoutName = nameInput.value;
-        }
-
         updatePreview();
       };
       reader.readAsText(file);
       e.target.value = ''; // Reset for next import
     };
 
-    // Ctrl+S to save
+    // Escape key to go back
     const handleKeyDown = (e) => {
-      if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        handleSave();
-        return;
-      }
-
       if (e.key === 'Escape') {
-        // Don't trigger if we're in the textarea or name input
-        if (document.activeElement === editorTextarea || document.activeElement === nameInput) {
-          document.activeElement.blur();
+        // Don't trigger if we're in the textarea
+        if (document.activeElement === editorTextarea) {
+          editorTextarea.blur();
           return;
         }
         if (onBack) {
@@ -293,7 +299,7 @@ export function createLayoutEditorView(container, options = {}) {
     };
 
     // Add event listeners
-    nameInput.addEventListener('input', handleNameChange);
+    tabsContainer.addEventListener('click', handleTabClick);
     editorTextarea.addEventListener('input', handleTextInput);
     document.addEventListener('keydown', handleKeyDown);
 
@@ -302,9 +308,6 @@ export function createLayoutEditorView(container, options = {}) {
 
     const saveBtn = container.querySelector('[data-action="save"]');
     saveBtn.addEventListener('click', handleSave);
-
-    const useBtn = container.querySelector('[data-action="use-layout"]');
-    useBtn.addEventListener('click', handleSaveAndUse);
 
     const exportBtn = container.querySelector('[data-action="export"]');
     exportBtn.addEventListener('click', handleExport);
@@ -316,16 +319,29 @@ export function createLayoutEditorView(container, options = {}) {
     fileInput.addEventListener('change', handleFileSelected);
 
     handlers.push(
-      { element: nameInput, event: 'input', handler: handleNameChange },
+      { element: tabsContainer, event: 'click', handler: handleTabClick },
       { element: editorTextarea, event: 'input', handler: handleTextInput },
       { element: document, event: 'keydown', handler: handleKeyDown },
       { element: loadDropdown, event: 'change', handler: handleLoadBuiltin },
       { element: saveBtn, event: 'click', handler: handleSave },
-      { element: useBtn, event: 'click', handler: handleSaveAndUse },
       { element: exportBtn, event: 'click', handler: handleExport },
       { element: importBtn, event: 'click', handler: handleImport },
       { element: fileInput, event: 'change', handler: handleFileSelected }
     );
+  }
+
+  /**
+   * Update built-in dropdown options
+   * @param {Object} layouts
+   */
+  function updateBuiltinDropdown(layouts) {
+    const dropdown = container.querySelector('[data-action="load-builtin"]');
+    dropdown.innerHTML = `
+      <option value="">-- Select --</option>
+      ${Object.keys(layouts)
+        .map((name) => `<option value="${name}">${formatName(name)}</option>`)
+        .join('')}
+    `;
   }
 
   /**
@@ -336,8 +352,17 @@ export function createLayoutEditorView(container, options = {}) {
     hideError();
 
     try {
-      const { physical, mapping } = parseCombinedLayout(currentText);
-      renderer.render(physical, mapping, { showFingers: true });
+      if (activeTab === 'physical-layout') {
+        const parsedLayout = parsePhysicalLayout(currentText);
+        // Use a basic mapping for preview
+        const defaultMapping = parseKeyMapping(DEFAULT_KEY_MAPPING);
+        renderer.render(parsedLayout, defaultMapping, { showFingers: false });
+      } else {
+        // For key mapping, we need a physical layout
+        const parsedMapping = parseKeyMapping(currentText);
+        const defaultLayout = parsePhysicalLayout(DEFAULT_PHYSICAL_LAYOUT);
+        renderer.render(defaultLayout, parsedMapping, { showFingers: true });
+      }
     } catch (err) {
       validationError = err.message;
       showError(err.message);

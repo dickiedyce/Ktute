@@ -380,3 +380,72 @@
   color: var(--text-muted);
   margin-top: var(--space-4);
 }
+/* Layout name input */
+.editor-name-group {
+  margin-bottom: var(--space-4);
+}
+
+.editor-name-group label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.layout-name-input {
+  width: 100%;
+  padding: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+}
+
+.layout-name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Layout select group in settings */
+.layout-select-group {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.layout-select-group select {
+  flex: 1;
+}
+
+.btn-small {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* Home shortcuts display */
+.home-nav .shortcuts {
+  display: flex;
+  gap: var(--space-6);
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.home-nav .shortcuts span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.home-nav .shortcuts kbd {
+  background: var(--accent);
+  color: white;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  min-width: 1.5em;
+  text-align: center;
+}

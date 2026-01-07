@@ -8,8 +8,10 @@ import { storage } from './storage.js';
 const STORAGE_KEY = 'preferences';
 
 const DEFAULTS = {
-  physicalLayout: 'corne',
-  keyMapping: 'colemak-dh',
+  layout: 'corne-colemak-dh',
+  // Legacy keys for migration
+  physicalLayout: null,
+  keyMapping: null,
   theme: 'dark',
   showFingers: true,
   showHints: true,
@@ -37,15 +39,39 @@ function save(prefs) {
  */
 export const preferences = {
   /**
-   * Get the current physical layout name
+   * Get the current layout name
    * @returns {string}
    */
-  getPhysicalLayout() {
-    return getStored().physicalLayout;
+  getLayout() {
+    return getStored().layout;
   },
 
   /**
-   * Set the physical layout
+   * Set the layout
+   * @param {string} layoutName
+   */
+  setLayout(layoutName) {
+    const prefs = getStored();
+    prefs.layout = layoutName;
+    save(prefs);
+  },
+
+  /**
+   * Get the current physical layout name (legacy, for backwards compatibility)
+   * @returns {string}
+   */
+  getPhysicalLayout() {
+    const stored = getStored();
+    // Return legacy value if set, otherwise derive from combined layout
+    if (stored.physicalLayout) {
+      return stored.physicalLayout;
+    }
+    // Default to 'corne' based on combined layout
+    return 'corne';
+  },
+
+  /**
+   * Set the physical layout (legacy)
    * @param {string} layoutName
    */
   setPhysicalLayout(layoutName) {
@@ -55,15 +81,19 @@ export const preferences = {
   },
 
   /**
-   * Get the current key mapping name
+   * Get the current key mapping name (legacy, for backwards compatibility)
    * @returns {string}
    */
   getKeyMapping() {
-    return getStored().keyMapping;
+    const stored = getStored();
+    if (stored.keyMapping) {
+      return stored.keyMapping;
+    }
+    return 'colemak-dh';
   },
 
   /**
-   * Set the key mapping
+   * Set the key mapping (legacy)
    * @param {string} mappingName
    */
   setKeyMapping(mappingName) {

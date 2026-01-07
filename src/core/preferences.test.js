@@ -74,8 +74,9 @@ describe('Preferences', () => {
     it('should return all preferences with defaults', () => {
       const prefs = preferences.getAll();
       expect(prefs).toEqual({
-        physicalLayout: 'corne',
-        keyMapping: 'colemak-dh',
+        layout: 'corne-colemak-dh',
+        physicalLayout: null,
+        keyMapping: null,
         theme: 'dark',
         showFingers: true,
         showHints: true,

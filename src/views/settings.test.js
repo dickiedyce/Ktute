@@ -17,71 +17,38 @@ describe('Settings View', () => {
       expect(view).not.toBeNull();
     });
 
-    it('should display physical layout selector', () => {
+    it('should display layout selector', () => {
       createSettingsView(container);
-      const layoutSelect = container.querySelector('[data-setting="physical-layout"]');
+      const layoutSelect = container.querySelector('[data-setting="layout"]');
       expect(layoutSelect).not.toBeNull();
     });
 
-    it('should display key mapping selector', () => {
+    it('should list available combined layouts', () => {
       createSettingsView(container);
-      const mappingSelect = container.querySelector('[data-setting="key-mapping"]');
-      expect(mappingSelect).not.toBeNull();
-    });
-
-    it('should list available physical layouts', () => {
-      createSettingsView(container);
-      const options = container.querySelectorAll('[data-setting="physical-layout"] option');
+      const options = container.querySelectorAll('[data-setting="layout"] option');
       const values = Array.from(options).map(o => o.value);
-      expect(values).toContain('corne');
-      expect(values).toContain('ergodox');
-      expect(values).toContain('svaalboard');
-      expect(values).toContain('standard60');
-    });
-
-    it('should list available key mappings', () => {
-      createSettingsView(container);
-      const options = container.querySelectorAll('[data-setting="key-mapping"] option');
-      const values = Array.from(options).map(o => o.value);
-      expect(values).toContain('colemak-dh');
-      expect(values).toContain('qwerty');
+      expect(values).toContain('corne-colemak-dh');
+      expect(values).toContain('corne-qwerty');
+      expect(values).toContain('ergodox-qwerty');
     });
 
     it('should show current layout as selected', () => {
       createSettingsView(container);
-      const layoutSelect = container.querySelector('[data-setting="physical-layout"]');
-      expect(layoutSelect.value).toBe('corne');
-    });
-
-    it('should show current mapping as selected', () => {
-      createSettingsView(container);
-      const mappingSelect = container.querySelector('[data-setting="key-mapping"]');
-      expect(mappingSelect.value).toBe('colemak-dh');
+      const layoutSelect = container.querySelector('[data-setting="layout"]');
+      expect(layoutSelect.value).toBe('corne-colemak-dh');
     });
   });
 
   describe('layout selection', () => {
     it('should update preferences when layout changes', () => {
       const { destroy } = createSettingsView(container);
-      const layoutSelect = container.querySelector('[data-setting="physical-layout"]');
+      const layoutSelect = container.querySelector('[data-setting="layout"]');
       
-      layoutSelect.value = 'ergodox';
+      layoutSelect.value = 'ergodox-qwerty';
       layoutSelect.dispatchEvent(new Event('change'));
       
       const prefs = storage.get('preferences');
-      expect(prefs.physicalLayout).toBe('ergodox');
-      destroy();
-    });
-
-    it('should update preferences when mapping changes', () => {
-      const { destroy } = createSettingsView(container);
-      const mappingSelect = container.querySelector('[data-setting="key-mapping"]');
-      
-      mappingSelect.value = 'qwerty';
-      mappingSelect.dispatchEvent(new Event('change'));
-      
-      const prefs = storage.get('preferences');
-      expect(prefs.keyMapping).toBe('qwerty');
+      expect(prefs.layout).toBe('ergodox-qwerty');
       destroy();
     });
   });
@@ -95,11 +62,11 @@ describe('Settings View', () => {
 
     it('should update preview when layout changes', () => {
       const { destroy } = createSettingsView(container);
-      const layoutSelect = container.querySelector('[data-setting="physical-layout"]');
+      const layoutSelect = container.querySelector('[data-setting="layout"]');
       const preview = container.querySelector('.keyboard-preview');
       
       const initialSvg = preview.innerHTML;
-      layoutSelect.value = 'ergodox';
+      layoutSelect.value = 'ergodox-qwerty';
       layoutSelect.dispatchEvent(new Event('change'));
       
       // Preview should have changed
