@@ -128,23 +128,40 @@ export function createPracticeView(container, options = {}) {
     const position = state.position;
     const typed = state.typed;
 
+    // Split text into words (keeping spaces as separators)
+    const words = text.split(/( )/);
     let html = '';
+    let charIndex = 0;
     
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      const displayChar = char === ' ' ? '␣' : char;
-      
-      if (i < position) {
-        // Already typed
-        const typedChar = typed[i];
-        const correct = typedChar === char;
-        html += `<span class="char ${correct ? 'correct' : 'error'}">${displayChar}</span>`;
-      } else if (i === position) {
-        // Current character
-        html += `<span class="char current">${displayChar}</span>`;
+    for (const word of words) {
+      if (word === ' ') {
+        // Render space character
+        const displayChar = '␣';
+        let className = 'char';
+        if (charIndex < position) {
+          const typedChar = typed[charIndex];
+          className += typedChar === ' ' ? ' correct' : ' error';
+        } else if (charIndex === position) {
+          className += ' current';
+        }
+        html += `<span class="${className}">${displayChar}</span>`;
+        charIndex++;
       } else {
-        // Not yet typed
-        html += `<span class="char">${displayChar}</span>`;
+        // Wrap word in a non-breaking container
+        html += '<span class="word">';
+        for (const char of word) {
+          const displayChar = char;
+          let className = 'char';
+          if (charIndex < position) {
+            const typedChar = typed[charIndex];
+            className += typedChar === char ? ' correct' : ' error';
+          } else if (charIndex === position) {
+            className += ' current';
+          }
+          html += `<span class="${className}">${displayChar}</span>`;
+          charIndex++;
+        }
+        html += '</span>';
       }
     }
 

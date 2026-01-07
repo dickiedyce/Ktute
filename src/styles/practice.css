@@ -78,6 +78,13 @@
   max-width: 800px;
   text-align: center;
   user-select: none;
+  word-wrap: break-word;
+}
+
+.text-display .word {
+  display: inline-block;
+  white-space: nowrap;
+}
 }
 
 .text-display .char {
