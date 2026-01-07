@@ -9,6 +9,7 @@ import {
   getAllLayouts,
   getBuiltinLayouts,
   saveCustomLayout,
+  deleteCustomLayout,
   generateLayoutId,
 } from '../keyboard/combined-layouts.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
@@ -229,9 +230,6 @@ export function createLayoutEditorView(container, options = {}) {
 
     // Delete custom layout
     const handleDeleteCustom = () => {
-      console.log('handleDeleteCustom called');
-      console.log('currentLoadedLayoutId:', currentLoadedLayoutId);
-      
       // Use the currently loaded layout ID
       if (!currentLoadedLayoutId) {
         alert('Please load a custom layout first');
@@ -239,32 +237,22 @@ export function createLayoutEditorView(container, options = {}) {
       }
 
       const layout = customLayouts[currentLoadedLayoutId];
-      console.log('layout:', layout);
-      if (!layout) {
-        console.log('No layout found for ID:', currentLoadedLayoutId);
-        return;
-      }
+      if (!layout) return;
 
-      console.log('About to show confirm dialog');
-      const confirmed = confirm(`Are you sure you want to delete "${layout.name}"?`);
-      console.log('Confirm result:', confirmed);
-      
-      if (confirmed) {
-        console.log('User confirmed, deleting...');
-        // Get all layouts
-        const allLayouts = storage.get('customLayouts') || {};
-        console.log('All layouts before delete:', allLayouts);
-        delete allLayouts[currentLoadedLayoutId];
-        console.log('All layouts after delete:', allLayouts);
-        storage.set('customLayouts', allLayouts);
+      if (confirm(`Are you sure you want to delete "${layout.name}"?`)) {
+        // Delete the layout
+        deleteCustomLayout(currentLoadedLayoutId);
 
-        // If this was the active layout, clear it
-        const activeLayoutId = preferences.get('layoutId');
+        // If this was the active layout, switch to a built-in layout
+        const activeLayoutId = preferences.getLayout();
         if (activeLayoutId === currentLoadedLayoutId) {
-          preferences.set('layoutId', null);
+          // Default to first built-in layout
+          const builtinIds = Object.keys(builtinLayouts);
+          if (builtinIds.length > 0) {
+            preferences.setLayout(builtinIds[0]);
+          }
         }
 
-        console.log('About to reload page');
         // Reload the page to refresh the dropdowns
         window.location.reload();
       }
