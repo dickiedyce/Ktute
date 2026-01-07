@@ -35,6 +35,7 @@ export function calculateAccuracy(totalChars, errorChars) {
  */
 export function createStatisticsTracker() {
   let startTime = null;
+  let endTime = null;
   let running = false;
   let totalChars = 0;
   let correctChars = 0;
@@ -76,6 +77,7 @@ export function createStatisticsTracker() {
    * End the current session
    */
   function endSession() {
+    endTime = Date.now();
     running = false;
   }
 
@@ -93,6 +95,7 @@ export function createStatisticsTracker() {
    */
   function getDuration() {
     if (!startTime) return 0;
+    if (endTime) return endTime - startTime;
     return Date.now() - startTime;
   }
 
@@ -173,6 +176,7 @@ export function createStatisticsTracker() {
    */
   function reset() {
     startTime = null;
+    endTime = null;
     running = false;
     totalChars = 0;
     correctChars = 0;
