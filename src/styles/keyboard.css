@@ -57,24 +57,34 @@
 }
 
 /* Finger hints - Blue tones with red/yellow highlights */
+/* Pinkies (0, 9) - red tint */
+.key[data-finger="0"] .key-bg,
+.key[data-finger="9"] .key-bg {
+  fill: color-mix(in srgb, var(--bg-secondary), #e94560 25%);
+}
+
+/* Ring fingers (1, 8) - orange tint */
 .key[data-finger="1"] .key-bg,
 .key[data-finger="8"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-dark) 25%);
+  fill: color-mix(in srgb, var(--bg-secondary), #ff9f43 25%);
 }
 
+/* Middle fingers (2, 7) - yellow tint */
 .key[data-finger="2"] .key-bg,
 .key[data-finger="7"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue) 20%);
+  fill: color-mix(in srgb, var(--bg-secondary), #ffd93d 25%);
 }
 
+/* Index fingers (3, 6) - green tint */
 .key[data-finger="3"] .key-bg,
 .key[data-finger="6"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-light) 25%);
+  fill: color-mix(in srgb, var(--bg-secondary), #4ecca3 25%);
 }
 
+/* Thumbs (4, 5) - purple tint */
 .key[data-finger="4"] .key-bg,
 .key[data-finger="5"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-light) 30%);
+  fill: color-mix(in srgb, var(--bg-secondary), #6c5ce7 30%);
 }
 
 /* Thumb keys */
