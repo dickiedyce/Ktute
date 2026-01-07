@@ -39,17 +39,17 @@
 }
 
 .key.correct .key-bg {
-  fill: var(--success);
-  stroke: var(--success);
+  fill: var(--blueprint-blue-light);
+  stroke: var(--blueprint-blue);
 }
 
 .key.correct .key-label {
-  fill: white;
+  fill: var(--blueprint-blue-dark);
 }
 
 .key.error .key-bg {
-  fill: var(--error);
-  stroke: var(--error);
+  fill: var(--blueprint-blue-dark);
+  stroke: var(--blueprint-blue-dark);
 }
 
 .key.error .key-label {
@@ -74,12 +74,12 @@
 
 .key[data-finger="4"] .key-bg,
 .key[data-finger="5"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--warning) 15%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-light) 30%);
 }
 
 /* Thumb keys */
 .key[data-thumb="true"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-secondary), var(--accent) 10%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue) 15%);
 }
 
 /* Keyboard container */
