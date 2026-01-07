@@ -25,8 +25,8 @@ function parseKeyToken(token, isCombinedFormat = false) {
     };
   }
   
-  // "0" is always a gap (no key)
-  if (token === '0') {
+  // "0" and "_" are gaps (no key)
+  if (token === '0' || token === '_') {
     return {
       label: null,
       width: 0,

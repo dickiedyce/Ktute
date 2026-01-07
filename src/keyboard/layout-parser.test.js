@@ -60,6 +60,27 @@ row1: 1 1 1 | 1 0 1
       expect(layout.keys).toHaveLength(10);
     });
 
+    it('should treat underscore as gap in combined layout format', () => {
+      const input = `
+[layout:with-gaps]
+rows: 2
+columns: 5,0
+split: false
+
+row0: q w e r t
+row1: a _ c _ e
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      // Row 1 should have 3 keys (2 gaps marked with _)
+      const row1Keys = physical.keys.filter(k => k.row === 1);
+      expect(row1Keys).toHaveLength(3);
+      
+      // Mapping should have 8 keys total (5 + 3)
+      expect(mapping.layers[0].keys).toHaveLength(8);
+      expect(mapping.layers[0].keys).not.toContain('_');
+    });
+
     it('should support wider keys with width values', () => {
       const input = `
 [physical:wider]
