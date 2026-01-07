@@ -35,7 +35,7 @@
 }
 
 .key.active .key-label {
-  fill: white;
+  fill: red;
 }
 
 .key.correct .key-bg {
