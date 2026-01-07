@@ -60,7 +60,29 @@ row1: 1 1 1 | 1 0 1
       expect(layout.keys).toHaveLength(10);
     });
 
-    it('should treat underscore as gap in combined layout format', () => {
+    it('should treat broken bar as gap and underscore as blank key', () => {
+      const input = `
+[layout:with-gaps-and-blanks]
+rows: 2
+columns: 5,0
+split: false
+
+row0: q w e r t
+row1: a ¦ c _ e
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      // Row 1 should have 4 keys (1 gap marked with ¦)
+      const row1Keys = physical.keys.filter(k => k.row === 1);
+      expect(row1Keys).toHaveLength(4);
+      
+      // Mapping should have 9 keys total (5 + 4), including _ as a blank label
+      expect(mapping.layers[0].keys).toHaveLength(9);
+      expect(mapping.layers[0].keys).toContain('_');  // _ is a valid blank key
+      expect(mapping.layers[0].keys).not.toContain('¦'); // ¦ is a gap
+    });
+
+    it('should treat broken bar as gap in combined layout format', () => {
       const input = `
 [layout:with-gaps]
 rows: 2
@@ -68,17 +90,17 @@ columns: 5,0
 split: false
 
 row0: q w e r t
-row1: a _ c _ e
+row1: a ¦ c ¦ e
 `;
       const { physical, mapping } = parseCombinedLayout(input);
       
-      // Row 1 should have 3 keys (2 gaps marked with _)
+      // Row 1 should have 3 keys (2 gaps marked with ¦)
       const row1Keys = physical.keys.filter(k => k.row === 1);
       expect(row1Keys).toHaveLength(3);
       
       // Mapping should have 8 keys total (5 + 3)
       expect(mapping.layers[0].keys).toHaveLength(8);
-      expect(mapping.layers[0].keys).not.toContain('_');
+      expect(mapping.layers[0].keys).not.toContain('¦');
     });
 
     it('should support wider keys with width values', () => {
@@ -267,14 +289,14 @@ row1: a b c d e
       expect(mapping.layers[0].keys).toContain('a');
     });
 
-    it('should treat 0 as key label in combined format, use _ for gaps', () => {
+    it('should treat 0 as key label in combined format, use ¦ for gaps', () => {
       const input = `
 [layout:with-zero]
 rows: 1
 columns: 11,0
 split: false
 
-row0: 1 2 3 4 5 6 7 8 9 0 _
+row0: 1 2 3 4 5 6 7 8 9 0 ¦
 `;
       const { physical, mapping } = parseCombinedLayout(input);
       

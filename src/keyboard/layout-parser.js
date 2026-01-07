@@ -25,8 +25,8 @@ function parseKeyToken(token, isCombinedFormat = false) {
     };
   }
   
-  // "_" is always a gap (no key) in any format
-  if (token === '_') {
+  // "¦" (broken bar) is always a gap (no key) in any format
+  if (token === '¦') {
     return {
       label: null,
       width: 0,
@@ -63,7 +63,7 @@ function parseKeyToken(token, isCombinedFormat = false) {
     }
   }
   
-  // Regular key label with width 1
+  // Regular key label with width 1 (including "_" for blank key)
   return {
     label: token,
     width: 1,
