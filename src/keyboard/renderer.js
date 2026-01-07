@@ -56,11 +56,12 @@ export function createKeyboardRenderer(container, options = {}) {
     // Calculate dimensions
     const { width, height, keyPositions } = calculatePositions(physicalLayout);
 
-    // Create SVG
+    // Create SVG with padding to prevent edge clipping
+    const padding = 2;
     svgElement = svgEl('svg', {
-      width: width,
-      height: height,
-      viewBox: `0 0 ${width} ${height}`,
+      width: width + padding * 2,
+      height: height + padding * 2,
+      viewBox: `${-padding} ${-padding} ${width + padding * 2} ${height + padding * 2}`,
       class: 'keyboard-svg',
     });
 
@@ -215,7 +216,7 @@ export function createKeyboardRenderer(container, options = {}) {
       class: 'key',
     });
 
-    if (finger && renderOptions.showFingers) {
+    if (finger !== undefined && finger !== null && renderOptions.showFingers) {
       group.setAttribute('data-finger', finger);
     }
 
