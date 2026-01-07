@@ -97,20 +97,30 @@ export function createKeyboardRenderer(container, options = {}) {
     const leftThumb = layout.keys.filter(k => k.hand === 'left' && k.isThumb);
     const rightThumb = layout.keys.filter(k => k.hand === 'right' && k.isThumb);
 
-    // Calculate left hand max column for split offset
+    // Calculate max columns per row for proper alignment
     const leftMaxCol = leftKeys.reduce((max, k) => Math.max(max, k.col), 0);
+    const rightMaxCol = rightKeys.reduce((max, k) => Math.max(max, k.col), 0);
+    
+    // Group left keys by row to find row-specific max columns
+    const leftRowMaxCols = {};
+    for (const key of leftKeys) {
+      leftRowMaxCols[key.row] = Math.max(leftRowMaxCols[key.row] || 0, key.col);
+    }
+    
     const rightOffset = layout.split ? (leftMaxCol + 1) * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP : (leftMaxCol + 1) * (KEY_WIDTH + KEY_GAP);
 
-    // Render left hand keys
+    // Render left hand keys - right-align shorter rows (toward center)
     for (const key of leftKeys) {
-      const x = key.col * (KEY_WIDTH + KEY_GAP);
+      const rowMaxCol = leftRowMaxCols[key.row] || 0;
+      const inset = (leftMaxCol - rowMaxCol) * (KEY_WIDTH + KEY_GAP);
+      const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = key.row * (KEY_HEIGHT + KEY_GAP);
       keyPositions.push({ x, y, hand: 'left', isThumb: false });
       maxX = Math.max(maxX, x + KEY_WIDTH);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
-    // Render right hand keys
+    // Render right hand keys (left-aligned, which is toward center)
     for (const key of rightKeys) {
       const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = key.row * (KEY_HEIGHT + KEY_GAP);
@@ -121,17 +131,21 @@ export function createKeyboardRenderer(container, options = {}) {
 
     // Calculate thumb row Y position
     const thumbY = maxY + THUMB_OFFSET_Y;
+    
+    // Calculate thumb max columns
+    const leftThumbMaxCol = leftThumb.reduce((max, k) => Math.max(max, k.col), 0);
 
-    // Render left thumb keys
+    // Render left thumb keys - right-aligned (toward center)
     for (const key of leftThumb) {
-      const x = key.col * (KEY_WIDTH + KEY_GAP);
+      const inset = (leftMaxCol - leftThumbMaxCol) * (KEY_WIDTH + KEY_GAP);
+      const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = thumbY;
       keyPositions.push({ x, y, hand: 'left', isThumb: true });
       maxX = Math.max(maxX, x + KEY_WIDTH);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
-    // Render right thumb keys
+    // Render right thumb keys (left-aligned, which is toward center)
     for (const key of rightThumb) {
       const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = thumbY;
