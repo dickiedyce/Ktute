@@ -6,14 +6,15 @@
 /**
  * Parse a single key token from row data
  * Supports formats:
- *   - "1", "1.5", "2" - physical only (numeric = width)
- *   - "0" - gap
+ *   - In physical-only mode: "1", "1.5", "2" = width, "0" = gap
+ *   - In combined mode: "1", "2" = key labels, "0" = gap
  *   - "a", "spc", "ctrl" - key label with width 1
  *   - "spc:2", "shift:1.5" - key label with explicit width
  * @param {string} token - The key token to parse
+ * @param {boolean} isCombinedFormat - Whether we're parsing a combined layout (labels, not widths)
  * @returns {{ label: string, width: number, isPhysicalOnly: boolean }}
  */
-function parseKeyToken(token) {
+function parseKeyToken(token, isCombinedFormat = false) {
   // Check for label:width format first
   const colonMatch = token.match(/^([^:]+):(\d+\.?\d*)$/);
   if (colonMatch) {
@@ -24,16 +25,35 @@ function parseKeyToken(token) {
     };
   }
   
-  // Check if purely numeric (physical-only format)
+  // "0" is always a gap (no key)
+  if (token === '0') {
+    return {
+      label: null,
+      width: 0,
+      isPhysicalOnly: true,
+    };
+  }
+  
+  // Check if purely numeric
   const numericValue = parseFloat(token);
   const isNumeric = !isNaN(numericValue) && token.match(/^[\d.]+$/);
   
   if (isNumeric) {
-    return {
-      label: null,
-      width: numericValue,
-      isPhysicalOnly: true,
-    };
+    if (isCombinedFormat) {
+      // In combined format, treat numeric as key label (e.g., "1", "2" on number row)
+      return {
+        label: token,
+        width: 1,
+        isPhysicalOnly: false,
+      };
+    } else {
+      // In physical-only format, treat as width
+      return {
+        label: null,
+        width: numericValue,
+        isPhysicalOnly: true,
+      };
+    }
   }
   
   // Regular key label with width 1
@@ -72,6 +92,7 @@ export function parseCombinedLayout(input) {
   let parsingFingers = false;
   let fingerValues = [];
   let rowIndex = 0;
+  let isCombinedFormat = false; // Track if using [layout:...] header
 
   for (const line of lines) {
     // Parse header [layout:name] (combined format)
@@ -80,6 +101,7 @@ export function parseCombinedLayout(input) {
       physical.name = layoutHeaderMatch[1];
       mapping.name = layoutHeaderMatch[1];
       mapping.base = layoutHeaderMatch[1];
+      isCombinedFormat = true; // Numeric tokens are labels, not widths
       continue;
     }
 
@@ -151,7 +173,7 @@ export function parseCombinedLayout(input) {
               const leftKeys = leftPart.split(/\s+/);
               let leftColPos = 0;
               leftKeys.forEach((k) => {
-                const parsed = parseKeyToken(k);
+                const parsed = parseKeyToken(k, isCombinedFormat);
                 
                 if (parsed.isPhysicalOnly) {
                   // Physical-only format: 0 = gap, number = key width
@@ -187,7 +209,7 @@ export function parseCombinedLayout(input) {
                 const rightKeys = rightPart.split(/\s+/);
                 let rightColPos = 0;
                 rightKeys.forEach((k) => {
-                  const parsed = parseKeyToken(k);
+                  const parsed = parseKeyToken(k, isCombinedFormat);
                   
                   if (parsed.isPhysicalOnly) {
                     if (parsed.width > 0) {

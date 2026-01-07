@@ -218,6 +218,34 @@ row1: shift:1.5 a s d shift:1.5
       expect(mapping.layers[0].keys).toContain('a');
     });
 
+    it('should treat numeric tokens as key labels in combined layout format', () => {
+      const input = `
+[layout:number-row]
+rows: 2
+columns: 5,0
+split: false
+
+row0: 1 2 3 4 5
+row1: a b c d e
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      expect(physical.keys).toHaveLength(10);
+      
+      // All row0 keys should have width 1 (not be treated as widths)
+      const row0Keys = physical.keys.filter(k => k.row === 0);
+      expect(row0Keys).toHaveLength(5);
+      row0Keys.forEach(k => {
+        expect(k.width).toBe(1);
+      });
+      
+      // Numeric tokens should be captured as key labels
+      expect(mapping.layers[0].keys).toContain('1');
+      expect(mapping.layers[0].keys).toContain('2');
+      expect(mapping.layers[0].keys).toContain('5');
+      expect(mapping.layers[0].keys).toContain('a');
+    });
+
     it('should support thumb row with wider keys', () => {
       const input = `
 [layout:thumb-wide]
