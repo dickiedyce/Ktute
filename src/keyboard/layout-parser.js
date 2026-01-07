@@ -63,33 +63,44 @@ export function parsePhysicalLayout(input) {
             const rowIndex = isThumb ? -1 : parseInt(key.slice(3), 10);
             
             // Split by | for left/right hands
-            const [leftPart, rightPart] = value.split('|').map(s => s.trim());
+            const parts = value.split('|').map(s => s.trim());
+            const leftPart = parts[0];
+            const rightPart = parts[1] || null;
             
-            // Parse left hand keys
+            // Parse left hand keys - track position including gaps
             const leftKeys = leftPart.split(/\s+/);
-            leftKeys.forEach((k, col) => {
-              if (k === '1') {
+            let leftColPos = 0;
+            leftKeys.forEach((k) => {
+              const width = parseFloat(k) || 0;
+              if (width > 0) {
                 layout.keys.push({
                   row: rowIndex,
-                  col,
+                  col: leftColPos,
+                  width: width,
                   hand: 'left',
                   isThumb,
                 });
               }
+              // Always advance position (even for 0 values, to create gaps)
+              leftColPos += width > 0 ? width : 1;
             });
 
             // Parse right hand keys
             if (rightPart) {
               const rightKeys = rightPart.split(/\s+/);
-              rightKeys.forEach((k, col) => {
-                if (k === '1') {
+              let rightColPos = 0;
+              rightKeys.forEach((k) => {
+                const width = parseFloat(k) || 0;
+                if (width > 0) {
                   layout.keys.push({
                     row: rowIndex,
-                    col,
+                    col: rightColPos,
+                    width: width,
                     hand: 'right',
                     isThumb,
                   });
                 }
+                rightColPos += width > 0 ? width : 1;
               });
             }
           }

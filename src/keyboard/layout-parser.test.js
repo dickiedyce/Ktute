@@ -40,8 +40,8 @@ row1: 1 1 1 | 1 1 1
       const layout = parsePhysicalLayout(input);
       
       expect(layout.keys).toHaveLength(12);
-      expect(layout.keys[0]).toEqual({ row: 0, col: 0, hand: 'left', isThumb: false });
-      expect(layout.keys[3]).toEqual({ row: 0, col: 0, hand: 'right', isThumb: false });
+      expect(layout.keys[0]).toEqual({ row: 0, col: 0, width: 1, hand: 'left', isThumb: false });
+      expect(layout.keys[3]).toEqual({ row: 0, col: 0, width: 1, hand: 'right', isThumb: false });
     });
 
     it('should handle gaps in layout (0 = no key)', () => {
@@ -58,6 +58,31 @@ row1: 1 1 1 | 1 0 1
       
       // Should only have 10 keys (2 gaps)
       expect(layout.keys).toHaveLength(10);
+    });
+
+    it('should support wider keys with width values', () => {
+      const input = `
+[physical:wider]
+rows: 2
+columns: 5,0
+split: false
+
+row0: 1 1 1 1 1
+row1: 1.5 1 1 1 1.5
+`;
+      const layout = parsePhysicalLayout(input);
+      
+      expect(layout.keys).toHaveLength(10);
+      
+      // Row 0 should all be width 1
+      const row0Keys = layout.keys.filter(k => k.row === 0);
+      expect(row0Keys.every(k => k.width === 1)).toBe(true);
+      
+      // Row 1 should have 1.5 width on edges
+      const row1Keys = layout.keys.filter(k => k.row === 1).sort((a, b) => a.col - b.col);
+      expect(row1Keys[0].width).toBe(1.5);
+      expect(row1Keys[1].width).toBe(1);
+      expect(row1Keys[4].width).toBe(1.5);
     });
 
     it('should include thumb keys', () => {

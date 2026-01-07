@@ -91,66 +91,101 @@ export function createKeyboardRenderer(container, options = {}) {
     let maxX = 0;
     let maxY = 0;
 
-    // Group keys by hand and row
+    // For non-split keyboards, just render left-to-right
+    if (!layout.split) {
+      const allKeys = layout.keys.filter(k => !k.isThumb);
+      const thumbKeys = layout.keys.filter(k => k.isThumb);
+      
+      for (const key of allKeys) {
+        const keyWidth = (key.width || 1) * KEY_WIDTH + (key.width > 1 ? (key.width - 1) * KEY_GAP : 0);
+        const x = key.col * (KEY_WIDTH + KEY_GAP);
+        const y = key.row * (KEY_HEIGHT + KEY_GAP);
+        keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb: false });
+        maxX = Math.max(maxX, x + keyWidth);
+        maxY = Math.max(maxY, y + KEY_HEIGHT);
+      }
+      
+      // Thumb/space bar row
+      if (thumbKeys.length > 0) {
+        const thumbY = maxY + THUMB_OFFSET_Y;
+        for (const key of thumbKeys) {
+          const keyWidth = (key.width || 1) * KEY_WIDTH + (key.width > 1 ? (key.width - 1) * KEY_GAP : 0);
+          const x = key.col * (KEY_WIDTH + KEY_GAP);
+          keyPositions.push({ x, y: thumbY, width: keyWidth, hand: 'left', isThumb: true });
+          maxX = Math.max(maxX, x + keyWidth);
+          maxY = Math.max(maxY, thumbY + KEY_HEIGHT);
+        }
+      }
+      
+      return {
+        width: maxX + KEY_GAP,
+        height: maxY + KEY_GAP,
+        keyPositions,
+      };
+    }
+
+    // Split keyboard logic
     const leftKeys = layout.keys.filter(k => k.hand === 'left' && !k.isThumb);
     const rightKeys = layout.keys.filter(k => k.hand === 'right' && !k.isThumb);
     const leftThumb = layout.keys.filter(k => k.hand === 'left' && k.isThumb);
     const rightThumb = layout.keys.filter(k => k.hand === 'right' && k.isThumb);
 
-    // Calculate max columns per row for proper alignment
-    const leftMaxCol = leftKeys.reduce((max, k) => Math.max(max, k.col), 0);
-    const rightMaxCol = rightKeys.reduce((max, k) => Math.max(max, k.col), 0);
-    
-    // Group left keys by row to find row-specific max columns
-    const leftRowMaxCols = {};
+    // Calculate max width per row for proper alignment
+    const leftRowWidths = {};
     for (const key of leftKeys) {
-      leftRowMaxCols[key.row] = Math.max(leftRowMaxCols[key.row] || 0, key.col);
+      const keyEnd = key.col + (key.width || 1);
+      leftRowWidths[key.row] = Math.max(leftRowWidths[key.row] || 0, keyEnd);
     }
+    const leftMaxWidth = Math.max(...Object.values(leftRowWidths), 0);
     
-    const rightOffset = layout.split ? (leftMaxCol + 1) * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP : (leftMaxCol + 1) * (KEY_WIDTH + KEY_GAP);
+    const rightOffset = leftMaxWidth * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP;
 
     // Render left hand keys - right-align shorter rows (toward center)
     for (const key of leftKeys) {
-      const rowMaxCol = leftRowMaxCols[key.row] || 0;
-      const inset = (leftMaxCol - rowMaxCol) * (KEY_WIDTH + KEY_GAP);
+      const rowWidth = leftRowWidths[key.row] || 0;
+      const inset = (leftMaxWidth - rowWidth) * (KEY_WIDTH + KEY_GAP);
+      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
       const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = key.row * (KEY_HEIGHT + KEY_GAP);
-      keyPositions.push({ x, y, hand: 'left', isThumb: false });
-      maxX = Math.max(maxX, x + KEY_WIDTH);
+      keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb: false });
+      maxX = Math.max(maxX, x + keyWidth);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
     // Render right hand keys (left-aligned, which is toward center)
     for (const key of rightKeys) {
+      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
       const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = key.row * (KEY_HEIGHT + KEY_GAP);
-      keyPositions.push({ x, y, hand: 'right', isThumb: false });
-      maxX = Math.max(maxX, x + KEY_WIDTH);
+      keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb: false });
+      maxX = Math.max(maxX, x + keyWidth);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
     // Calculate thumb row Y position
     const thumbY = maxY + THUMB_OFFSET_Y;
     
-    // Calculate thumb max columns
-    const leftThumbMaxCol = leftThumb.reduce((max, k) => Math.max(max, k.col), 0);
+    // Calculate thumb max width
+    const leftThumbMaxWidth = leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0);
 
     // Render left thumb keys - right-aligned (toward center)
     for (const key of leftThumb) {
-      const inset = (leftMaxCol - leftThumbMaxCol) * (KEY_WIDTH + KEY_GAP);
+      const inset = (leftMaxWidth - leftThumbMaxWidth) * (KEY_WIDTH + KEY_GAP);
+      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
       const x = inset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = thumbY;
-      keyPositions.push({ x, y, hand: 'left', isThumb: true });
-      maxX = Math.max(maxX, x + KEY_WIDTH);
+      keyPositions.push({ x, y, width: keyWidth, hand: 'left', isThumb: true });
+      maxX = Math.max(maxX, x + keyWidth);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
     // Render right thumb keys (left-aligned, which is toward center)
     for (const key of rightThumb) {
+      const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
       const x = rightOffset + key.col * (KEY_WIDTH + KEY_GAP);
       const y = thumbY;
-      keyPositions.push({ x, y, hand: 'right', isThumb: true });
-      maxX = Math.max(maxX, x + KEY_WIDTH);
+      keyPositions.push({ x, y, width: keyWidth, hand: 'right', isThumb: true });
+      maxX = Math.max(maxX, x + keyWidth);
       maxY = Math.max(maxY, y + KEY_HEIGHT);
     }
 
@@ -163,13 +198,15 @@ export function createKeyboardRenderer(container, options = {}) {
 
   /**
    * Render a single key
-   * @param {Object} pos - Position { x, y, hand, isThumb }
+   * @param {Object} pos - Position { x, y, width, hand, isThumb }
    * @param {string} label - Key label
    * @param {number} [finger] - Finger number
    * @param {Object} [renderOptions={}]
    * @returns {SVGElement}
    */
   function renderKey(pos, label, finger, renderOptions = {}) {
+    const keyWidth = pos.width || KEY_WIDTH;
+    
     const group = svgEl('g', {
       'data-key': label || 'empty',
       'data-hand': pos.hand,
@@ -184,7 +221,7 @@ export function createKeyboardRenderer(container, options = {}) {
     const rect = svgEl('rect', {
       x: pos.x,
       y: pos.y,
-      width: KEY_WIDTH,
+      width: keyWidth,
       height: KEY_HEIGHT,
       rx: KEY_RADIUS,
       ry: KEY_RADIUS,
@@ -195,7 +232,7 @@ export function createKeyboardRenderer(container, options = {}) {
     // Key label
     if (label && label !== '_') {
       const text = svgEl('text', {
-        x: pos.x + KEY_WIDTH / 2,
+        x: pos.x + keyWidth / 2,
         y: pos.y + KEY_HEIGHT / 2 + 5,
         class: 'key-label',
         'text-anchor': 'middle',
