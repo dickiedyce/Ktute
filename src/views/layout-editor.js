@@ -135,7 +135,6 @@ export function createLayoutEditorView(container, options = {}) {
               <dd><code>fingers:</code> - Start finger assignment section</dd>
               <dd><code>row0: 0 0 1 2 3 3 | 6 6 7 8 9 9</code> - Space-separated numbers (one per key)</dd>
               <dd><code>thumb: 4 4 4 | 5 5 5</code> - 0-4=left (pinky/ring/middle/index/thumb), 5-9=right (thumb/index/middle/ring/pinky)</dd>
-              <dd><code>.</code> - No finger assignment for blank keys</dd>
             </dl>
           </div>
 
