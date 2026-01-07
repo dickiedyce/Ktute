@@ -4,6 +4,7 @@
 
 import { createKeyboardHandler, createCommandMenu } from './events.js';
 import { createRouter } from './router.js';
+import { createPracticeView } from '../views/practice.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
 import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
 import { CORNE } from '../keyboard/physical-layouts.js';
@@ -40,7 +41,7 @@ export function initApp() {
   // Set up router
   router = createRouter({
     '/': () => renderHomeView(app),
-    '/practice': () => renderView(app, 'practice', 'Practice'),
+    '/practice': () => renderPracticeView(app),
     '/lessons': () => renderView(app, 'lessons', 'Lessons'),
     '/stats': () => renderView(app, 'stats', 'Statistics'),
     '/layout': () => renderView(app, 'layout', 'Layout Editor'),
@@ -86,6 +87,28 @@ function renderHomeView(container) {
     const keyMapping = parseKeyMapping(mappings['colemak-dh']);
     renderer.render(physicalLayout, keyMapping, { showFingers: true });
   }
+}
+
+let practiceView = null;
+
+/**
+ * Render the practice view
+ * @param {HTMLElement} container
+ */
+function renderPracticeView(container) {
+  // Deactivate global keyboard handler during practice
+  keyboardHandler?.deactivate();
+  
+  practiceView = createPracticeView(container, {
+    wordCount: 20,
+    onExit: () => {
+      keyboardHandler?.activate();
+      router?.navigate('/');
+    },
+    onComplete: (stats) => {
+      console.log('Practice complete:', stats);
+    },
+  });
 }
 
 /**
