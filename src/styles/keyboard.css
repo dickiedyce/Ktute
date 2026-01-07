@@ -9,14 +9,14 @@
 
 /* Key base */
 .key .key-bg {
-  fill: var(--bg-tertiary);
-  stroke: var(--text-muted);
-  stroke-width: 1;
+  fill: var(--bg-secondary);
+  stroke: var(--blueprint-blue);
+  stroke-width: 1.5;
   transition: all var(--transition-fast);
 }
 
 .key .key-label {
-  fill: var(--text-primary);
+  fill: var(--blueprint-blue);
   font-family: var(--font-mono);
   font-size: 14px;
   pointer-events: none;
@@ -25,13 +25,13 @@
 
 /* Key states */
 .key:hover .key-bg {
-  fill: var(--bg-secondary);
-  stroke: var(--text-secondary);
+  fill: var(--bg-tertiary);
+  stroke: var(--blueprint-blue-dark);
 }
 
 .key.active .key-bg {
-  fill: var(--accent);
-  stroke: var(--accent);
+  fill: var(--blueprint-blue);
+  stroke: var(--blueprint-blue-dark);
 }
 
 .key.active .key-label {
@@ -56,43 +56,44 @@
   fill: white;
 }
 
-/* Finger hints */
+/* Finger hints - Blue tones with red/yellow highlights */
 .key[data-finger="1"] .key-bg,
 .key[data-finger="8"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-tertiary), #e94560 20%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-dark) 25%);
 }
 
 .key[data-finger="2"] .key-bg,
 .key[data-finger="7"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-tertiary), #ff9f43 20%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue) 20%);
 }
 
 .key[data-finger="3"] .key-bg,
 .key[data-finger="6"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-tertiary), #ffd93d 20%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--blueprint-blue-light) 25%);
 }
 
 .key[data-finger="4"] .key-bg,
 .key[data-finger="5"] .key-bg {
-  fill: color-mix(in srgb, var(--bg-tertiary), #4ecca3 20%);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--warning) 15%);
 }
 
 /* Thumb keys */
 .key[data-thumb="true"] .key-bg {
-  fill: var(--bg-secondary);
+  fill: color-mix(in srgb, var(--bg-secondary), var(--accent) 10%);
 }
 
 /* Keyboard container */
 .keyboard-container {
   padding: var(--space-8);
   background: var(--bg-secondary);
+  border: 2px solid var(--blueprint-blue);
   border-radius: var(--radius-lg);
   margin: var(--space-4) 0;
 }
 
 .keyboard-container h3 {
   margin-bottom: var(--space-4);
-  color: var(--text-secondary);
+  color: var(--blueprint-blue);
   font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.1em;

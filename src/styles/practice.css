@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-4);
-  border-bottom: 1px solid var(--bg-tertiary);
+  border-bottom: 2px solid var(--blueprint-blue);
 }
 
 .stats-display {
@@ -39,7 +39,7 @@
 }
 
 .stats-display .wpm .value {
-  color: var(--accent);
+  color: var(--blueprint-blue);
 }
 
 .stats-display .accuracy .value {
@@ -85,7 +85,6 @@
   display: inline-block;
   white-space: nowrap;
 }
-}
 
 .text-display .char {
   display: inline-block;
@@ -94,7 +93,7 @@
 }
 
 .text-display .char.current {
-  color: var(--text-primary);
+  color: var(--blueprint-blue);
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   animation: pulse 1s ease-in-out infinite;
