@@ -25,8 +25,8 @@ function parseKeyToken(token, isCombinedFormat = false) {
     };
   }
   
-  // "0" and "_" are gaps (no key)
-  if (token === '0' || token === '_') {
+  // "_" is always a gap (no key) in any format
+  if (token === '_') {
     return {
       label: null,
       width: 0,
@@ -40,14 +40,21 @@ function parseKeyToken(token, isCombinedFormat = false) {
   
   if (isNumeric) {
     if (isCombinedFormat) {
-      // In combined format, treat numeric as key label (e.g., "1", "2" on number row)
+      // In combined format, treat numeric as key label (e.g., "0", "1", "2" on number row)
       return {
         label: token,
         width: 1,
         isPhysicalOnly: false,
       };
     } else {
-      // In physical-only format, treat as width
+      // In physical-only format, "0" = gap, other numbers = width
+      if (token === '0') {
+        return {
+          label: null,
+          width: 0,
+          isPhysicalOnly: true,
+        };
+      }
       return {
         label: null,
         width: numericValue,
@@ -188,18 +195,16 @@ export function parseCombinedLayout(input) {
                   }
                   leftColPos += parsed.width > 0 ? parsed.width : 1;
                 } else {
-                  // Combined format: key label (0 still means gap)
+                  // Combined format: key label with width
                   // Supports label:width syntax (e.g., spc:2 for 2-unit spacebar)
-                  if (parsed.label !== '0') {
-                    physical.keys.push({
-                      row: currentRowIndex,
-                      col: leftColPos,
-                      width: parsed.width,
-                      hand: 'left',
-                      isThumb,
-                    });
-                    mapping.layers[0].keys.push(parsed.label);
-                  }
+                  physical.keys.push({
+                    row: currentRowIndex,
+                    col: leftColPos,
+                    width: parsed.width,
+                    hand: 'left',
+                    isThumb,
+                  });
+                  mapping.layers[0].keys.push(parsed.label);
                   leftColPos += parsed.width;
                 }
               });
@@ -223,16 +228,14 @@ export function parseCombinedLayout(input) {
                     }
                     rightColPos += parsed.width > 0 ? parsed.width : 1;
                   } else {
-                    if (parsed.label !== '0') {
-                      physical.keys.push({
-                        row: currentRowIndex,
-                        col: rightColPos,
-                        width: parsed.width,
-                        hand: 'right',
-                        isThumb,
-                      });
-                      mapping.layers[0].keys.push(parsed.label);
-                    }
+                    physical.keys.push({
+                      row: currentRowIndex,
+                      col: rightColPos,
+                      width: parsed.width,
+                      hand: 'right',
+                      isThumb,
+                    });
+                    mapping.layers[0].keys.push(parsed.label);
                     rightColPos += parsed.width;
                   }
                 });

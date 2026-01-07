@@ -267,6 +267,25 @@ row1: a b c d e
       expect(mapping.layers[0].keys).toContain('a');
     });
 
+    it('should treat 0 as key label in combined format, use _ for gaps', () => {
+      const input = `
+[layout:with-zero]
+rows: 1
+columns: 11,0
+split: false
+
+row0: 1 2 3 4 5 6 7 8 9 0 _
+`;
+      const { physical, mapping } = parseCombinedLayout(input);
+      
+      // Should have 10 keys (11 positions - 1 gap)
+      expect(physical.keys).toHaveLength(10);
+      
+      // 0 should be a key label, not a gap
+      expect(mapping.layers[0].keys).toContain('0');
+      expect(mapping.layers[0].keys).toHaveLength(10);
+    });
+
     it('should support thumb row with wider keys', () => {
       const input = `
 [layout:thumb-wide]
