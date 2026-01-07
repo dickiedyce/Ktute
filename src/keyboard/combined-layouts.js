@@ -27,9 +27,9 @@ row2: shift z x c d v | k h , . / shift
 thumb: gui alt spc | ent alt ctrl
 
 fingers:
-row0: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 | 5 5 6 7 8 8
+row0: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row1: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row2: 0 0 1 2 3 3 | 6 6 7 8 9 9
 thumb: 4 4 4 | 5 5 5
 `,
   },
@@ -48,9 +48,9 @@ row2: shift z x c v b | n m , . / shift
 thumb: gui alt spc | ent alt ctrl
 
 fingers:
-row0: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 | 5 5 6 7 8 8
+row0: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row1: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row2: 0 0 1 2 3 3 | 6 6 7 8 9 9
 thumb: 4 4 4 | 5 5 5
 `,
   },
@@ -90,9 +90,9 @@ row2: shift ; q j k x | b m w v z shift
 thumb: gui alt spc | ent alt ctrl
 
 fingers:
-row0: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 | 5 5 6 7 8 8
+row0: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row1: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row2: 0 0 1 2 3 3 | 6 6 7 8 9 9
 thumb: 4 4 4 | 5 5 5
 `,
   },
@@ -113,11 +113,11 @@ row4: \` gui alt left right 0 0 | 0 0 up down [ ] ctrl
 thumb: del bspc gui alt | alt gui ent spc
 
 fingers:
-row0: 1 1 2 3 4 4 4 | 5 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 4 | 5 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 4 | 5 5 5 6 7 8 8
-row3: 1 1 2 3 4 4 4 | 5 5 5 6 7 8 8
-row4: 1 1 2 3 4 4 4 | 5 5 5 6 7 8 8
+row0: 0 0 1 2 3 3 3 | 6 6 6 7 8 9 9
+row1: 0 0 1 2 3 3 3 | 6 6 6 7 8 9 9
+row2: 0 0 1 2 3 3 3 | 6 6 6 7 8 9 9
+row3: 0 0 1 2 3 3 3 | 6 6 6 7 8 9 9
+row4: 0 0 1 2 3 3 3 | 6 6 6 7 8 9 9
 thumb: 4 4 4 4 | 5 5 5 5
 `,
   },
@@ -137,10 +137,10 @@ row3: shift z x c d v | k h , . / shift
 thumb: gui alt spc ent | ent spc alt ctrl
 
 fingers:
-row0: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row1: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row2: 1 1 2 3 4 4 | 5 5 6 7 8 8
-row3: 1 1 2 3 4 4 | 5 5 6 7 8 8
+row0: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row1: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row2: 0 0 1 2 3 3 | 6 6 7 8 9 9
+row3: 0 0 1 2 3 3 | 6 6 7 8 9 9
 thumb: 4 4 4 4 | 5 5 5 5
 `,
   },
@@ -160,11 +160,11 @@ row3: shift:2.25 z x c v b n m , . / shift:2.75
 row4: ctrl:1.25 gui:1.25 alt:1.25 spc:6.25 alt:1.25 gui:1.25 menu:1.25 ctrl:1.25
 
 fingers:
-row0: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
-row1: 1 1 2 3 4 4 5 5 6 7 8 8 8 8
-row2: 1 1 2 3 4 4 5 5 6 7 8 8 8
-row3: 1 1 2 3 4 4 5 5 6 7 8 8
-row4: 1 1 1 4 7 7 8 8
+row0: 0 0 1 2 3 3 6 6 7 8 9 9 9 9
+row1: 0 0 1 2 3 3 6 6 7 8 9 9 9 9
+row2: 0 0 1 2 3 3 6 6 7 8 9 9 9
+row3: 0 0 1 2 3 3 6 6 7 8 9 9
+row4: 0 0 0 4 8 8 9 9
 `,
   },
 };

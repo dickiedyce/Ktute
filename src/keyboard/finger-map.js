@@ -4,58 +4,62 @@
  */
 
 /**
- * Finger names (1-8)
- * 1-4: Left hand (pinky to index)
- * 5-8: Right hand (index to pinky)
+ * Finger names (0-9)
+ * 0-4: Left hand (pinky to thumb)
+ * 5-9: Right hand (thumb to pinky)
  */
 export const FINGER_NAMES = [
-  'left pinky',   // 1
-  'left ring',    // 2
-  'left middle',  // 3
-  'left index',   // 4
-  'right index',  // 5
-  'right middle', // 6
-  'right ring',   // 7
-  'right pinky',  // 8
+  'left pinky',   // 0
+  'left ring',    // 1
+  'left middle',  // 2
+  'left index',   // 3
+  'left thumb',   // 4
+  'right thumb',  // 5
+  'right index',  // 6
+  'right middle', // 7
+  'right ring',   // 8
+  'right pinky',  // 9
 ];
 
 /**
  * Finger colors for visualization
- * Distinct colors for each finger
+ * Distinct colors for each finger, symmetric for corresponding fingers
  */
 export const FINGER_COLORS = [
   '#e94560', // left pinky - red
   '#ff9f43', // left ring - orange
   '#ffd93d', // left middle - yellow
   '#4ecca3', // left index - green
-  '#4ecca3', // right index - green (same as left index)
+  '#6c5ce7', // left thumb - purple
+  '#6c5ce7', // right thumb - purple (same as left thumb)
+  '#4ecca3', // right index - green
   '#ffd93d', // right middle - yellow
   '#ff9f43', // right ring - orange
   '#e94560', // right pinky - red
 ];
 
 /**
- * Get finger name by number (1-8)
+ * Get finger name by number (0-9)
  * @param {number} finger
  * @returns {string}
  */
 export function getFingerName(finger) {
-  if (finger < 1 || finger > 8) {
+  if (finger < 0 || finger > 9) {
     return 'unknown';
   }
-  return FINGER_NAMES[finger - 1];
+  return FINGER_NAMES[finger];
 }
 
 /**
- * Get finger color by number (1-8)
+ * Get finger color by number (0-9)
  * @param {number} finger
  * @returns {string} CSS color
  */
 export function getFingerColor(finger) {
-  if (finger < 1 || finger > 8) {
+  if (finger < 0 || finger > 9) {
     return '#666';
   }
-  return FINGER_COLORS[finger - 1];
+  return FINGER_COLORS[finger];
 }
 
 /**
