@@ -175,10 +175,17 @@ export function parseCombinedLayout(input) {
           }
           // Fall through to parse as row
         default:
-          // Row definitions: row0, row1, row2, thumb
-          if (key.startsWith('row') || key === 'thumb') {
-            const isThumb = key === 'thumb';
-            const currentRowIndex = isThumb ? -1 : parseInt(key.slice(3), 10);
+          // Row definitions: row0, row1, row2, thumb, thumb0, thumb1, etc
+          if (key.startsWith('row') || key === 'thumb' || key.startsWith('thumb')) {
+            const isThumb = key === 'thumb' || key.startsWith('thumb');
+            let currentRowIndex;
+            if (key === 'thumb') {
+              currentRowIndex = -1; // Legacy single thumb row
+            } else if (key.startsWith('thumb')) {
+              currentRowIndex = -10 - parseInt(key.slice(5), 10); // thumb0 = -10, thumb1 = -11, etc
+            } else {
+              currentRowIndex = parseInt(key.slice(3), 10);
+            }
             
             // Split by | for left/right hands
             const parts = value.split('|').map(s => s.trim());

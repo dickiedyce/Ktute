@@ -110,6 +110,34 @@ export function createLayoutEditorView(container, options = {}) {
             </select>
           </div>
 
+          <div class="syntax-help">
+            <h3>Layout Syntax</h3>
+            <dl>
+              <dt>Header:</dt>
+              <dd><code>[layout:name]</code> - Define layout name</dd>
+              <dd><code>rows: 3</code> - Number of regular rows</dd>
+              <dd><code>columns: 6,6</code> - Keys per hand (split) or total (non-split)</dd>
+              <dd><code>split: true</code> - Split keyboard layout</dd>
+              
+              <dt>Rows:</dt>
+              <dd><code>row0: q w e r t | y u i o p</code> - Regular rows (row0, row1, row2...)</dd>
+              <dd><code>thumb: spc ent bspc | alt ctrl gui</code> - Single thumb row</dd>
+              <dd><code>thumb0: ...</code>, <code>thumb1: ...</code> - Multiple thumb rows</dd>
+              
+              <dt>Keys:</dt>
+              <dd><code>a</code>, <code>spc</code>, <code>ctrl</code> - Key with width 1</dd>
+              <dd><code>spc:2</code>, <code>shift:1.5</code> - Key with custom width</dd>
+              <dd><code>_</code> - Blank key (physical key, no label)</dd>
+              <dd><code>¦</code> - Gap (no physical key, 1.0 width)</dd>
+              <dd><code>¦:0.25</code>, <code>¦:0.5</code> - Gap with custom width</dd>
+              
+              <dt>Fingers:</dt>
+              <dd><code>fingers:</code> - Start finger assignment section</dd>
+              <dd><code>row0: 1 2 3 4 | 5 6 7 8</code> - Space-separated (1-4=left pinky-index, 5-8=right index-pinky)</dd>
+              <dd><code>.</code> - No finger assignment for blank keys</dd>
+            </dl>
+          </div>
+
           <div class="editor-actions">
             <button class="btn btn-primary" data-action="save">Save Layout</button>
             <button class="btn btn-secondary" data-action="use-layout">Save &amp; Use</button>

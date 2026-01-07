@@ -143,12 +143,27 @@ export function createKeyboardRenderer(container, options = {}) {
     const leftThumbWidth = leftThumb.reduce((max, k) => Math.max(max, k.col + (k.width || 1)), 0);
     
     const rightOffset = leftMaxWidth * (KEY_WIDTH + KEY_GAP) + SPLIT_GAP;
-    const thumbY = (Math.max(...leftKeys.map(k => k.row), ...rightKeys.map(k => k.row)) + 1) * (KEY_HEIGHT + KEY_GAP) + THUMB_OFFSET_Y;
+    
+    // Calculate base Y position for thumb cluster (below regular rows)
+    const maxRegularRow = Math.max(...leftKeys.map(k => k.row), ...rightKeys.map(k => k.row), 0);
+    const thumbBaseY = (maxRegularRow + 1) * (KEY_HEIGHT + KEY_GAP) + THUMB_OFFSET_Y;
 
     // Process keys in original order to match mapping.keys array
     for (const key of layout.keys) {
       const isThumb = key.isThumb;
-      const y = isThumb ? thumbY : key.row * (KEY_HEIGHT + KEY_GAP);
+      
+      // Calculate Y position: regular rows use row index, thumb keys use negative row indices
+      let y;
+      if (isThumb) {
+        // Map thumb row indices to positions
+        // row -1 (legacy 'thumb') = thumbBaseY
+        // row -10 (thumb0) = thumbBaseY
+        // row -11 (thumb1) = thumbBaseY + KEY_HEIGHT + KEY_GAP
+        const thumbRowOffset = key.row === -1 ? 0 : Math.abs(key.row + 10);
+        y = thumbBaseY + thumbRowOffset * (KEY_HEIGHT + KEY_GAP);
+      } else {
+        y = key.row * (KEY_HEIGHT + KEY_GAP);
+      }
       
       if (key.hand === 'left') {
         const keyWidth = (key.width || 1) * KEY_WIDTH + ((key.width || 1) > 1 ? ((key.width || 1) - 1) * KEY_GAP : 0);
