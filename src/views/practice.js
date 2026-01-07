@@ -7,8 +7,9 @@ import { createWordGenerator } from '../engine/word-generator.js';
 import { createStatisticsTracker } from '../engine/statistics.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
 import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
-import { CORNE } from '../keyboard/physical-layouts.js';
+import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
 import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
+import { preferences } from '../core/preferences.js';
 
 /**
  * Create the practice view
@@ -19,11 +20,16 @@ import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
 export function createPracticeView(container, options = {}) {
   const {
     wordCount = 20,
-    physicalLayout = CORNE,
-    keyMappingName = 'colemak-dh',
     onComplete,
     onExit,
   } = options;
+  
+  // Get layout from preferences
+  const physicalLayoutName = preferences.getPhysicalLayout();
+  const keyMappingName = preferences.getKeyMapping();
+  const layouts = getBuiltinPhysicalLayouts();
+  const mappings = getBuiltinKeyMappings();
+  const physicalLayout = layouts[physicalLayoutName] || layouts['corne'];
 
   let engine = null;
   let stats = null;
@@ -43,8 +49,7 @@ export function createPracticeView(container, options = {}) {
   function init() {
     // Parse layout and mapping
     parsedLayout = parsePhysicalLayout(physicalLayout);
-    const mappings = getBuiltinKeyMappings();
-    parsedMapping = parseKeyMapping(mappings[keyMappingName]);
+    parsedMapping = parseKeyMapping(mappings[keyMappingName] || mappings['colemak-dh']);
 
     // Generate practice text
     const generator = createWordGenerator();

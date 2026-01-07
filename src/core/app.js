@@ -4,10 +4,12 @@
 
 import { createKeyboardHandler, createCommandMenu } from './events.js';
 import { createRouter } from './router.js';
+import { preferences } from './preferences.js';
 import { createPracticeView } from '../views/practice.js';
+import { createSettingsView } from '../views/settings.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
 import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
-import { CORNE } from '../keyboard/physical-layouts.js';
+import { getBuiltinPhysicalLayouts } from '../keyboard/physical-layouts.js';
 import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
 
 let keyboardHandler = null;
@@ -45,7 +47,7 @@ export function initApp() {
     '/lessons': () => renderView(app, 'lessons', 'Lessons'),
     '/stats': () => renderView(app, 'stats', 'Statistics'),
     '/layout': () => renderView(app, 'layout', 'Layout Editor'),
-    '/settings': () => renderView(app, 'settings', 'Settings'),
+    '/settings': () => renderSettingsView(app),
   });
 }
 
@@ -56,9 +58,18 @@ export function initApp() {
 function renderHomeView(container) {
   container.innerHTML = '';
   
+  // Get current preferences
+  const currentLayout = preferences.getPhysicalLayout();
+  const currentMapping = preferences.getKeyMapping();
+  const layouts = getBuiltinPhysicalLayouts();
+  const mappings = getBuiltinKeyMappings();
+  
   const homeView = document.createElement('main');
   homeView.setAttribute('data-view', 'home');
   homeView.className = 'home-view';
+  
+  const layoutDisplayName = formatLayoutName(currentLayout);
+  const mappingDisplayName = formatMappingName(currentMapping);
   
   homeView.innerHTML = `
     <header class="home-header">
@@ -67,7 +78,7 @@ function renderHomeView(container) {
       <p class="tagline">For split keyboards and alternative layouts</p>
     </header>
     <div class="keyboard-container">
-      <h3>Corne • Colemak-DH</h3>
+      <h3>${layoutDisplayName} • ${mappingDisplayName}</h3>
       <div id="keyboard-preview"></div>
     </div>
     <nav class="home-nav">
@@ -82,14 +93,50 @@ function renderHomeView(container) {
   const keyboardContainer = document.getElementById('keyboard-preview');
   if (keyboardContainer) {
     const renderer = createKeyboardRenderer(keyboardContainer);
-    const physicalLayout = parsePhysicalLayout(CORNE);
-    const mappings = getBuiltinKeyMappings();
-    const keyMapping = parseKeyMapping(mappings['colemak-dh']);
-    renderer.render(physicalLayout, keyMapping, { showFingers: true });
+    const layoutDef = layouts[currentLayout];
+    const mappingDef = mappings[currentMapping];
+    
+    if (layoutDef && mappingDef) {
+      const physicalLayout = parsePhysicalLayout(layoutDef);
+      const keyMapping = parseKeyMapping(mappingDef);
+      renderer.render(physicalLayout, keyMapping, { showFingers: true });
+    }
   }
 }
 
 let practiceView = null;
+let settingsView = null;
+
+/**
+ * Format layout name for display
+ * @param {string} name
+ * @returns {string}
+ */
+function formatLayoutName(name) {
+  const displayNames = {
+    corne: 'Corne',
+    ergodox: 'Ergodox',
+    svaalboard: 'Svaalboard',
+    standard60: 'Standard 60%',
+  };
+  return displayNames[name] || name;
+}
+
+/**
+ * Format mapping name for display
+ * @param {string} name
+ * @returns {string}
+ */
+function formatMappingName(name) {
+  const displayNames = {
+    qwerty: 'QWERTY',
+    'colemak-dh': 'Colemak-DH',
+    workman: 'Workman',
+    dvorak: 'Dvorak',
+    'qwerty-ergodox': 'QWERTY (Ergodox)',
+  };
+  return displayNames[name] || name;
+}
 
 /**
  * Render the practice view
@@ -135,6 +182,21 @@ function renderView(container, viewName, title) {
   `;
   
   container.appendChild(view);
+}
+
+/**
+ * Render the settings view
+ * @param {HTMLElement} container
+ */
+function renderSettingsView(container) {
+  // Clean up previous settings view if any
+  settingsView?.destroy();
+  
+  settingsView = createSettingsView(container, {
+    onBack: () => {
+      router?.navigate('/');
+    },
+  });
 }
 
 /**
