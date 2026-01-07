@@ -26,10 +26,11 @@ function parseKeyToken(token, isCombinedFormat = false) {
   }
   
   // "¦" (broken bar) is always a gap (no key) in any format
+  // Quarter-width spacing
   if (token === '¦') {
     return {
       label: null,
-      width: 0,
+      width: 0.25,
       isPhysicalOnly: true,
     };
   }
@@ -183,10 +184,10 @@ export function parseCombinedLayout(input) {
               leftKeys.forEach((k) => {
                 const parsed = parseKeyToken(k, isCombinedFormat);
                 
-                // Check if this is a gap (¦) - width is 0, label is null
-                if (parsed.width === 0 && parsed.label === null) {
-                  // Gap - just advance position by 1
-                  leftColPos += 1;
+                // Check if this is a gap (¦) - small width, label is null
+                if (parsed.label === null && parsed.width > 0 && parsed.width < 1) {
+                  // Gap - advance position by gap width (e.g., 0.25)
+                  leftColPos += parsed.width;
                 } else if (parsed.isPhysicalOnly) {
                   // Physical-only format: 0 = gap, number = key width
                   if (parsed.width > 0) {
@@ -221,10 +222,10 @@ export function parseCombinedLayout(input) {
                 rightKeys.forEach((k) => {
                   const parsed = parseKeyToken(k, isCombinedFormat);
                   
-                  // Check if this is a gap (¦) - width is 0, label is null
-                  if (parsed.width === 0 && parsed.label === null) {
-                    // Gap - just advance position by 1
-                    rightColPos += 1;
+                  // Check if this is a gap (¦) - small width, label is null
+                  if (parsed.label === null && parsed.width > 0 && parsed.width < 1) {
+                    // Gap - advance position by gap width (e.g., 0.25)
+                    rightColPos += parsed.width;
                   } else if (parsed.isPhysicalOnly) {
                     if (parsed.width > 0) {
                       physical.keys.push({

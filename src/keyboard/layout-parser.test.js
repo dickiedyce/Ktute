@@ -409,17 +409,17 @@ row1: a s d f g | h j k l ;
       // Physical keys should only include actual keys, not gaps
       expect(physical.keys).toHaveLength(14); // 2+5 on left, 2+5 on right = 14 total
       
-      // Left hand row 0 should have keys at positions 1 and 3
+      // Left hand row 0 should have keys at positions with 0.25-width gaps
       const leftRow0 = physical.keys.filter(k => k.hand === 'left' && k.row === 0);
       expect(leftRow0).toHaveLength(2);
-      expect(leftRow0[0].col).toBe(1); // q at position 1
-      expect(leftRow0[1].col).toBe(3); // w at position 3
+      expect(leftRow0[0].col).toBe(0.25); // q at position 0.25 (after gap)
+      expect(leftRow0[1].col).toBe(1.5); // w at position 1.5 (0.25 gap + 1 key + 0.25 gap)
       
-      // Right hand row 0 should have keys at positions 1 and 3
+      // Right hand row 0 should have keys at positions with 0.25-width gaps
       const rightRow0 = physical.keys.filter(k => k.hand === 'right' && k.row === 0);
       expect(rightRow0).toHaveLength(2);
-      expect(rightRow0[0].col).toBe(1); // e at position 1
-      expect(rightRow0[1].col).toBe(3); // r at position 3
+      expect(rightRow0[0].col).toBe(0.25); // e at position 0.25 (after gap)
+      expect(rightRow0[1].col).toBe(1.5); // r at position 1.5 (0.25 gap + 1 key + 0.25 gap)
       
       // Mapping should only contain the actual keys, not gaps
       expect(mapping.layers[0].keys).toHaveLength(14);
