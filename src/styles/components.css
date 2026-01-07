@@ -1,0 +1,77 @@
+/**
+ * Command Menu Styles
+ */
+
+.command-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.command-menu-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.command-menu-input {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--font-size-lg);
+  font-family: var(--font-mono);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--bg-tertiary);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.command-menu-input::placeholder {
+  color: var(--text-muted);
+}
+
+.command-menu-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.command-item {
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  font-family: var(--font-sans);
+}
+
+.command-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.command-item.selected {
+  background: var(--accent);
+  color: white;
+}
+
+.command-item kbd {
+  float: right;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.command-item.selected kbd {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}

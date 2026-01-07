@@ -105,3 +105,74 @@ body {
 .mono {
   font-family: var(--font-mono);
 }
+
+/* Home View */
+.home-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.home-header h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home-header .subtitle {
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.home-header .tagline {
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
+  margin-bottom: var(--space-8);
+}
+
+.home-nav {
+  margin-top: var(--space-8);
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
+}
+
+.hint kbd {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--text-muted);
+}
+
+/* Generic View Styles */
+.view-header {
+  padding: var(--space-8);
+  text-align: center;
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.view-header h1 {
+  font-size: var(--font-size-2xl);
+}
+
+.view-content {
+  padding: var(--space-8);
+  text-align: center;
+  flex: 1;
+}
