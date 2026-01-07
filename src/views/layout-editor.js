@@ -229,6 +229,9 @@ export function createLayoutEditorView(container, options = {}) {
 
     // Delete custom layout
     const handleDeleteCustom = () => {
+      console.log('handleDeleteCustom called');
+      console.log('currentLoadedLayoutId:', currentLoadedLayoutId);
+      
       // Use the currently loaded layout ID
       if (!currentLoadedLayoutId) {
         alert('Please load a custom layout first');
@@ -236,12 +239,23 @@ export function createLayoutEditorView(container, options = {}) {
       }
 
       const layout = customLayouts[currentLoadedLayoutId];
-      if (!layout) return;
+      console.log('layout:', layout);
+      if (!layout) {
+        console.log('No layout found for ID:', currentLoadedLayoutId);
+        return;
+      }
 
-      if (confirm(`Are you sure you want to delete "${layout.name}"?`)) {
+      console.log('About to show confirm dialog');
+      const confirmed = confirm(`Are you sure you want to delete "${layout.name}"?`);
+      console.log('Confirm result:', confirmed);
+      
+      if (confirmed) {
+        console.log('User confirmed, deleting...');
         // Get all layouts
         const allLayouts = storage.get('customLayouts') || {};
+        console.log('All layouts before delete:', allLayouts);
         delete allLayouts[currentLoadedLayoutId];
+        console.log('All layouts after delete:', allLayouts);
         storage.set('customLayouts', allLayouts);
 
         // If this was the active layout, clear it
@@ -250,6 +264,7 @@ export function createLayoutEditorView(container, options = {}) {
           preferences.set('layoutId', null);
         }
 
+        console.log('About to reload page');
         // Reload the page to refresh the dropdowns
         window.location.reload();
       }
