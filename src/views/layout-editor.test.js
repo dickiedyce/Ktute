@@ -137,6 +137,22 @@ row1: 1 1 1 | 1 1 1
     });
   });
 
+  describe('export functionality', () => {
+    it('should have export button', () => {
+      createLayoutEditorView(container);
+      const exportBtn = container.querySelector('[data-action="export"]');
+      expect(exportBtn).not.toBeNull();
+    });
+  });
+
+  describe('import functionality', () => {
+    it('should have import button', () => {
+      createLayoutEditorView(container);
+      const importBtn = container.querySelector('[data-action="import"]');
+      expect(importBtn).not.toBeNull();
+    });
+  });
+
   describe('destroy', () => {
     it('should clean up event listeners', () => {
       const { destroy } = createLayoutEditorView(container);

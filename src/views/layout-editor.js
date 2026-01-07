@@ -100,6 +100,11 @@ export function createLayoutEditorView(container, options = {}) {
 
           <div class="editor-actions">
             <button class="btn btn-primary" data-action="save">Save Layout</button>
+            <div class="editor-actions-row">
+              <button class="btn btn-secondary" data-action="export">Export</button>
+              <button class="btn btn-secondary" data-action="import">Import</button>
+              <input type="file" id="import-file" accept=".txt,.layout" style="display: none;">
+            </div>
           </div>
         </section>
 
@@ -107,7 +112,7 @@ export function createLayoutEditorView(container, options = {}) {
           <div class="editor-text-container">
             <textarea 
               class="layout-text-editor" 
-              spellcheck="false" 
+              spellcheck="false"
               placeholder="Enter layout definition..."
             >${escapeHtml(currentText)}</textarea>
             <div class="validation-error" style="display: none;"></div>
@@ -242,6 +247,41 @@ export function createLayoutEditorView(container, options = {}) {
       }, 2000);
     };
 
+    // Export layout
+    const handleExport = () => {
+      const nameMatch = currentText.match(/\[(physical|mapping):([^\]]+)\]/);
+      const name = nameMatch ? nameMatch[2].trim() : 'layout';
+      const extension = activeTab === 'physical-layout' ? 'layout' : 'mapping';
+      
+      const blob = new Blob([currentText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name}.${extension}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Import layout
+    const handleImport = () => {
+      const fileInput = container.querySelector('#import-file');
+      fileInput.click();
+    };
+
+    const handleFileSelected = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        editorTextarea.value = event.target.result;
+        currentText = event.target.result;
+        updatePreview();
+      };
+      reader.readAsText(file);
+      e.target.value = ''; // Reset for next import
+    };
+
     // Add event listeners
     tabsContainer.addEventListener('click', handleTabClick);
     editorTextarea.addEventListener('input', handleTextInput);
@@ -252,11 +292,23 @@ export function createLayoutEditorView(container, options = {}) {
     const saveBtn = container.querySelector('[data-action="save"]');
     saveBtn.addEventListener('click', handleSave);
 
+    const exportBtn = container.querySelector('[data-action="export"]');
+    exportBtn.addEventListener('click', handleExport);
+
+    const importBtn = container.querySelector('[data-action="import"]');
+    importBtn.addEventListener('click', handleImport);
+
+    const fileInput = container.querySelector('#import-file');
+    fileInput.addEventListener('change', handleFileSelected);
+
     handlers.push(
       { element: tabsContainer, event: 'click', handler: handleTabClick },
       { element: editorTextarea, event: 'input', handler: handleTextInput },
       { element: loadDropdown, event: 'change', handler: handleLoadBuiltin },
-      { element: saveBtn, event: 'click', handler: handleSave }
+      { element: saveBtn, event: 'click', handler: handleSave },
+      { element: exportBtn, event: 'click', handler: handleExport },
+      { element: importBtn, event: 'click', handler: handleImport },
+      { element: fileInput, event: 'change', handler: handleFileSelected }
     );
   }
 

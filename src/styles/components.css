@@ -264,6 +264,18 @@
 
 .editor-actions {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.editor-actions-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editor-actions-row .btn {
+  flex: 1;
 }
 
 .btn {
@@ -286,6 +298,16 @@
 
 .btn-primary:hover {
   background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
 }
 
 .editor-main {
