@@ -264,8 +264,41 @@ export function createLayoutEditorView(container, options = {}) {
         return;
       }
 
-      const id = generateLayoutId(layoutName);
+      // If we have a loaded layout and the name matches, update it
+      // Otherwise generate a new ID
+      let id;
+      if (currentLoadedLayoutId && customLayouts[currentLoadedLayoutId]?.name === layoutName) {
+        id = currentLoadedLayoutId;
+      } else {
+        id = generateLayoutId(layoutName);
+      }
+      
       saveCustomLayout(id, layoutName, currentText);
+
+      // Update currentLoadedLayoutId to the saved ID
+      currentLoadedLayoutId = id;
+
+      // Update the dropdown to reflect the saved layout
+      const allLayouts = getAllLayouts();
+      const builtinIds = Object.keys(getBuiltinLayouts());
+      const updatedCustomLayouts = Object.fromEntries(
+        Object.entries(allLayouts).filter(([layoutId]) => !builtinIds.includes(layoutId))
+      );
+      
+      const loadCustomDropdown = container.querySelector('#load-custom');
+      loadCustomDropdown.innerHTML = `
+        <option value="">-- Select --</option>
+        ${Object.entries(updatedCustomLayouts)
+          .map(([layoutId, layout]) => `<option value="${layoutId}">${layout.name}</option>`)
+          .join('')}
+      `;
+
+      // Update customLayouts reference
+      Object.assign(customLayouts, updatedCustomLayouts);
+
+      // Enable delete button since we now have a loaded layout
+      const deleteBtn = container.querySelector('[data-action="delete-custom"]');
+      if (deleteBtn) deleteBtn.disabled = false;
 
       // Show success feedback
       const saveBtn = container.querySelector('[data-action="save"]');
