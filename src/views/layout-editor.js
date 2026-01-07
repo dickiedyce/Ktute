@@ -282,9 +282,26 @@ export function createLayoutEditorView(container, options = {}) {
       e.target.value = ''; // Reset for next import
     };
 
+    // Escape key to go back
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        // Don't trigger if we're in the textarea
+        if (document.activeElement === editorTextarea) {
+          editorTextarea.blur();
+          return;
+        }
+        if (onBack) {
+          onBack();
+        } else {
+          window.location.hash = '/';
+        }
+      }
+    };
+
     // Add event listeners
     tabsContainer.addEventListener('click', handleTabClick);
     editorTextarea.addEventListener('input', handleTextInput);
+    document.addEventListener('keydown', handleKeyDown);
 
     const loadDropdown = container.querySelector('[data-action="load-builtin"]');
     loadDropdown.addEventListener('change', handleLoadBuiltin);
@@ -304,6 +321,7 @@ export function createLayoutEditorView(container, options = {}) {
     handlers.push(
       { element: tabsContainer, event: 'click', handler: handleTabClick },
       { element: editorTextarea, event: 'input', handler: handleTextInput },
+      { element: document, event: 'keydown', handler: handleKeyDown },
       { element: loadDropdown, event: 'change', handler: handleLoadBuiltin },
       { element: saveBtn, event: 'click', handler: handleSave },
       { element: exportBtn, event: 'click', handler: handleExport },

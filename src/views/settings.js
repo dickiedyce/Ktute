@@ -155,12 +155,24 @@ export function createSettingsView(container, options = {}) {
       updatePreview();
     };
 
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (onBack) {
+          onBack();
+        } else {
+          window.location.hash = '/';
+        }
+      }
+    };
+
     layoutSelect.addEventListener('change', handleLayoutChange);
     mappingSelect.addEventListener('change', handleMappingChange);
+    document.addEventListener('keydown', handleKeyDown);
 
     handlers.push(
       { element: layoutSelect, event: 'change', handler: handleLayoutChange },
-      { element: mappingSelect, event: 'change', handler: handleMappingChange }
+      { element: mappingSelect, event: 'change', handler: handleMappingChange },
+      { element: document, event: 'keydown', handler: handleKeyDown }
     );
   }
 
