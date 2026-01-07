@@ -15,22 +15,35 @@
  * @returns {{ label: string, width: number, isPhysicalOnly: boolean }}
  */
 function parseKeyToken(token, isCombinedFormat = false) {
-  // Check for label:width format first
+  // Check for label:width format first (including ¦:width for custom gap width)
   const colonMatch = token.match(/^([^:]+):(\d+\.?\d*)$/);
   if (colonMatch) {
+    const label = colonMatch[1];
+    const width = parseFloat(colonMatch[2]);
+    
+    // Handle ¦:width (gap with custom width)
+    if (label === '¦') {
+      return {
+        label: null,
+        width: width,
+        isPhysicalOnly: true,
+      };
+    }
+    
+    // Regular key with width
     return {
-      label: colonMatch[1],
-      width: parseFloat(colonMatch[2]),
+      label: label,
+      width: width,
       isPhysicalOnly: false,
     };
   }
   
   // "¦" (broken bar) is always a gap (no key) in any format
-  // Quarter-width spacing
+  // Default to 1.0 width spacing
   if (token === '¦') {
     return {
       label: null,
-      width: 0.25,
+      width: 1.0,
       isPhysicalOnly: true,
     };
   }
@@ -184,9 +197,9 @@ export function parseCombinedLayout(input) {
               leftKeys.forEach((k) => {
                 const parsed = parseKeyToken(k, isCombinedFormat);
                 
-                // Check if this is a gap (¦) - small width, label is null
-                if (parsed.label === null && parsed.width > 0 && parsed.width < 1) {
-                  // Gap - advance position by gap width (e.g., 0.25)
+                // Check if this is a gap (¦) - label is null and isPhysicalOnly
+                if (parsed.label === null && parsed.isPhysicalOnly) {
+                  // Gap - advance position by gap width (default 1.0 or custom)
                   leftColPos += parsed.width;
                 } else if (parsed.isPhysicalOnly) {
                   // Physical-only format: 0 = gap, number = key width
@@ -222,9 +235,9 @@ export function parseCombinedLayout(input) {
                 rightKeys.forEach((k) => {
                   const parsed = parseKeyToken(k, isCombinedFormat);
                   
-                  // Check if this is a gap (¦) - small width, label is null
-                  if (parsed.label === null && parsed.width > 0 && parsed.width < 1) {
-                    // Gap - advance position by gap width (e.g., 0.25)
+                  // Check if this is a gap (¦) - label is null and isPhysicalOnly
+                  if (parsed.label === null && parsed.isPhysicalOnly) {
+                    // Gap - advance position by gap width (default 1.0 or custom)
                     rightColPos += parsed.width;
                   } else if (parsed.isPhysicalOnly) {
                     if (parsed.width > 0) {

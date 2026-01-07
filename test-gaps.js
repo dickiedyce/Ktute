@@ -1,6 +1,7 @@
 import { parseCombinedLayout } from './src/keyboard/layout-parser.js';
 
-const input = `[layout:with-gaps]
+// Test 1: Default gaps (1.0 width)
+const input1 = `[layout:with-gaps]
 rows: 2
 columns: 5,5
 split: true
@@ -9,21 +10,31 @@ row0: ¦ q ¦ w ¦ | ¦ e ¦ r ¦
 row1: a s d f g | h j k l ;
 `;
 
-const { physical, mapping } = parseCombinedLayout(input);
+const result1 = parseCombinedLayout(input1);
+console.log('=== Test 1: Default Gaps (1.0) ===');
+console.log('All left keys:', result1.physical.keys.filter(k => k.hand === 'left').map(k => ({ row: k.row, col: k.col })));
+const leftRow0_1 = result1.physical.keys.filter(k => k.hand === 'left' && k.row === 0);
+console.log('Left row 0 count:', leftRow0_1.length);
+console.log('Left row 0 positions:', leftRow0_1.map(k => k.col));
+console.log('Expected: [1, 3]');
+console.log('✓ Correct:', leftRow0_1[0].col === 1 && leftRow0_1[1].col === 3);
 
-console.log('Total physical keys:', physical.keys.length);
+// Test 2: Custom gap widths
+const input2 = `[layout:custom-gaps]
+rows: 1
+columns: 4,4
+split: true
 
-const leftRow0 = physical.keys.filter(k => k.hand === 'left' && k.row === 0);
-console.log('\nLeft row 0 keys:', leftRow0.length);
-console.log('Positions:', leftRow0.map(k => k.col));
+row0: ¦:0.25 a ¦:0.5 b | c ¦:0.25 d ¦
+`;
 
-const rightRow0 = physical.keys.filter(k => k.hand === 'right' && k.row === 0);
-console.log('\nRight row 0 keys:', rightRow0.length);
-console.log('Positions:', rightRow0.map(k => k.col));
-
-console.log('\nTest results:');
-console.log('✓ Total keys =', physical.keys.length === 14);
-console.log('✓ Left row 0[0].col =', leftRow0[0].col === 0.25);
-console.log('✓ Left row 0[1].col =', leftRow0[1].col === 1.5);
-console.log('✓ Right row 0[0].col =', rightRow0[0].col === 0.25);
-console.log('✓ Right row 0[1].col =', rightRow0[1].col === 1.5);
+const result2 = parseCombinedLayout(input2);
+console.log('\n=== Test 2: Custom Gap Widths ===');
+const leftRow0_2 = result2.physical.keys.filter(k => k.hand === 'left' && k.row === 0);
+const rightRow0_2 = result2.physical.keys.filter(k => k.hand === 'right' && k.row === 0);
+console.log('Left row 0 positions:', leftRow0_2.map(k => k.col));
+console.log('Expected: [0.25, 1.75]');
+console.log('✓ Left correct:', leftRow0_2[0].col === 0.25 && leftRow0_2[1].col === 1.75);
+console.log('Right row 0 positions:', rightRow0_2.map(k => k.col));
+console.log('Expected: [0, 1.25]');
+console.log('✓ Right correct:', rightRow0_2[0].col === 0 && rightRow0_2[1].col === 1.25);
