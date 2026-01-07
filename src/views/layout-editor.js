@@ -96,7 +96,7 @@ export function createLayoutEditorView(container, options = {}) {
                 .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
                 .join('')}
             </select>
-            <button class="btn btn-danger btn-sm" data-action="delete-custom" ${Object.keys(customLayouts).length === 0 ? 'disabled' : ''}>Delete</button>
+            <button class="btn btn-danger btn-sm" data-action="delete-custom" disabled>Delete</button>
           </div>
 
           <div class="editor-controls">
@@ -219,6 +219,10 @@ export function createLayoutEditorView(container, options = {}) {
         nameInput.value = layout.name;
         layoutName = nameInput.value;
         updatePreview();
+        
+        // Enable delete button
+        const deleteBtn = container.querySelector('[data-action="delete-custom"]');
+        if (deleteBtn) deleteBtn.disabled = false;
       }
       e.target.value = ''; // Reset dropdown
     };
