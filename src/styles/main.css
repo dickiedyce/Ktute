@@ -144,6 +144,29 @@ body {
   margin-top: var(--space-8);
 }
 
+/* Keyboard Container */
+.keyboard-container {
+  margin: var(--space-8) 0;
+}
+
+.keyboard-container h3 {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-bottom: var(--space-4);
+  letter-spacing: 0.05em;
+}
+
+#keyboard-preview {
+  display: flex;
+  justify-content: center;
+}
+
+#keyboard-preview svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .hint {
   color: var(--text-muted);
   font-size: var(--font-size-sm);

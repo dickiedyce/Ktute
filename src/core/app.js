@@ -4,6 +4,10 @@
 
 import { createKeyboardHandler, createCommandMenu } from './events.js';
 import { createRouter } from './router.js';
+import { createKeyboardRenderer } from '../keyboard/renderer.js';
+import { parsePhysicalLayout, parseKeyMapping } from '../keyboard/layout-parser.js';
+import { CORNE } from '../keyboard/physical-layouts.js';
+import { getBuiltinKeyMappings } from '../keyboard/key-mappings.js';
 
 let keyboardHandler = null;
 let commandMenu = null;
@@ -61,6 +65,10 @@ function renderHomeView(container) {
       <p class="subtitle">Keyboard Typing Tutor</p>
       <p class="tagline">For split keyboards and alternative layouts</p>
     </header>
+    <div class="keyboard-container">
+      <h3>Corne • Colemak-DH</h3>
+      <div id="keyboard-preview"></div>
+    </div>
     <nav class="home-nav">
       <p class="hint">Press <kbd>/</kbd> to open command menu</p>
       <p class="hint">Press <kbd>?</kbd> for help</p>
@@ -68,6 +76,16 @@ function renderHomeView(container) {
   `;
   
   container.appendChild(homeView);
+
+  // Render keyboard preview
+  const keyboardContainer = document.getElementById('keyboard-preview');
+  if (keyboardContainer) {
+    const renderer = createKeyboardRenderer(keyboardContainer);
+    const physicalLayout = parsePhysicalLayout(CORNE);
+    const mappings = getBuiltinKeyMappings();
+    const keyMapping = parseKeyMapping(mappings['colemak-dh']);
+    renderer.render(physicalLayout, keyMapping, { showFingers: true });
+  }
 }
 
 /**

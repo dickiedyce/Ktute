@@ -1,0 +1,99 @@
+/**
+ * Keyboard SVG Styles
+ */
+
+.keyboard-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Key base */
+.key .key-bg {
+  fill: var(--bg-tertiary);
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  transition: all var(--transition-fast);
+}
+
+.key .key-label {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Key states */
+.key:hover .key-bg {
+  fill: var(--bg-secondary);
+  stroke: var(--text-secondary);
+}
+
+.key.active .key-bg {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.key.active .key-label {
+  fill: white;
+}
+
+.key.correct .key-bg {
+  fill: var(--success);
+  stroke: var(--success);
+}
+
+.key.correct .key-label {
+  fill: white;
+}
+
+.key.error .key-bg {
+  fill: var(--error);
+  stroke: var(--error);
+}
+
+.key.error .key-label {
+  fill: white;
+}
+
+/* Finger hints */
+.key[data-finger="1"] .key-bg,
+.key[data-finger="8"] .key-bg {
+  fill: color-mix(in srgb, var(--bg-tertiary), #e94560 20%);
+}
+
+.key[data-finger="2"] .key-bg,
+.key[data-finger="7"] .key-bg {
+  fill: color-mix(in srgb, var(--bg-tertiary), #ff9f43 20%);
+}
+
+.key[data-finger="3"] .key-bg,
+.key[data-finger="6"] .key-bg {
+  fill: color-mix(in srgb, var(--bg-tertiary), #ffd93d 20%);
+}
+
+.key[data-finger="4"] .key-bg,
+.key[data-finger="5"] .key-bg {
+  fill: color-mix(in srgb, var(--bg-tertiary), #4ecca3 20%);
+}
+
+/* Thumb keys */
+.key[data-thumb="true"] .key-bg {
+  fill: var(--bg-secondary);
+}
+
+/* Keyboard container */
+.keyboard-container {
+  padding: var(--space-8);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0;
+}
+
+.keyboard-container h3 {
+  margin-bottom: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
