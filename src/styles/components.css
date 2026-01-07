@@ -310,6 +310,27 @@
   background: var(--bg-tertiary);
 }
 
+.btn-danger {
+  background: #c44;
+  color: white;
+  border: 1px solid #a33;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a33;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  margin-left: var(--space-2);
+}
+
 .editor-main {
   display: flex;
   flex-direction: column;

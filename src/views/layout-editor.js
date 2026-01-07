@@ -45,6 +45,9 @@ export function createLayoutEditorView(container, options = {}) {
   // Get available layouts
   const allLayouts = getAllLayouts();
   const builtinLayouts = getBuiltinLayouts();
+  const customLayouts = Object.fromEntries(
+    Object.entries(allLayouts).filter(([id]) => !(id in builtinLayouts))
+  );
 
   // Current state
   let layoutName = 'My Custom Layout';
@@ -82,6 +85,17 @@ export function createLayoutEditorView(container, options = {}) {
           <div class="editor-name-group">
             <label for="layout-name">Layout Name</label>
             <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
+          </div>
+
+          <div class="editor-controls">
+            <label for="load-custom">Load custom layout:</label>
+            <select id="load-custom" data-action="load-custom">
+              <option value="">-- Select --</option>
+              ${Object.entries(customLayouts)
+                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+                .join('')}
+            </select>
+            <button class="btn btn-danger btn-sm" data-action="delete-custom" ${Object.keys(customLayouts).length === 0 ? 'disabled' : ''}>Delete</button>
           </div>
 
           <div class="editor-controls">
@@ -188,6 +202,53 @@ export function createLayoutEditorView(container, options = {}) {
         updatePreview();
       }
       e.target.value = ''; // Reset dropdown
+    };
+
+    // Load custom layout
+    const handleLoadCustom = (e) => {
+      const id = e.target.value;
+      if (!id) return;
+
+      const layout = customLayouts[id];
+      if (layout) {
+        editorTextarea.value = layout.definition;
+        currentText = layout.definition;
+        // Set name to the actual name (for editing)
+        nameInput.value = layout.name;
+        layoutName = nameInput.value;
+        updatePreview();
+      }
+      e.target.value = ''; // Reset dropdown
+    };
+
+    // Delete custom layout
+    const handleDeleteCustom = () => {
+      const loadCustomDropdown = container.querySelector('#load-custom');
+      const selectedId = loadCustomDropdown.value;
+      
+      if (!selectedId) {
+        alert('Please select a custom layout to delete');
+        return;
+      }
+
+      const layout = customLayouts[selectedId];
+      if (!layout) return;
+
+      if (confirm(`Are you sure you want to delete "${layout.name}"?`)) {
+        // Get all layouts
+        const allLayouts = storage.get('customLayouts') || {};
+        delete allLayouts[selectedId];
+        storage.set('customLayouts', allLayouts);
+
+        // If this was the active layout, clear it
+        const activeLayoutId = preferences.get('layoutId');
+        if (activeLayoutId === selectedId) {
+          preferences.set('layoutId', null);
+        }
+
+        // Reload the page to refresh the dropdowns
+        window.location.reload();
+      }
     };
 
     // Save layout
@@ -300,6 +361,12 @@ export function createLayoutEditorView(container, options = {}) {
     const loadDropdown = container.querySelector('[data-action="load-builtin"]');
     loadDropdown.addEventListener('change', handleLoadBuiltin);
 
+    const loadCustomDropdown = container.querySelector('[data-action="load-custom"]');
+    loadCustomDropdown.addEventListener('change', handleLoadCustom);
+
+    const deleteBtn = container.querySelector('[data-action="delete-custom"]');
+    deleteBtn.addEventListener('click', handleDeleteCustom);
+
     const saveBtn = container.querySelector('[data-action="save"]');
     saveBtn.addEventListener('click', handleSave);
 
@@ -320,6 +387,8 @@ export function createLayoutEditorView(container, options = {}) {
       { element: editorTextarea, event: 'input', handler: handleTextInput },
       { element: document, event: 'keydown', handler: handleKeyDown },
       { element: loadDropdown, event: 'change', handler: handleLoadBuiltin },
+      { element: loadCustomDropdown, event: 'change', handler: handleLoadCustom },
+      { element: deleteBtn, event: 'click', handler: handleDeleteCustom },
       { element: saveBtn, event: 'click', handler: handleSave },
       { element: useBtn, event: 'click', handler: handleSaveAndUse },
       { element: exportBtn, event: 'click', handler: handleExport },
