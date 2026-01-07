@@ -10,6 +10,28 @@ A keyboard-first typing tutor for split and custom layouts. Everything runs in t
 - Practice view with live stats (WPM, accuracy) and current-key highlighting
 - LocalStorage persistence for preferences and custom layouts
 
+## Screenshots
+
+### Practice View
+![Practice View](assets/Practice.png)
+
+### Layout Editor
+![Layout Editor](assets/Editor.png)
+
+### Keyboard Layouts
+
+#### Corne
+![Corne Layout](assets/Corne.png)
+
+#### Standard 60%
+![Standard 60% Layout](assets/Standard60%.png)
+
+#### Svalboard
+![Svalboard Layout](assets/Svalboard.png)
+
+#### Ergodox with Settings
+![Ergodox Layout with Settings](assets/Ergodox%20settings.png)
+
 ## Tech Stack
 - Vite + vanilla ES modules
 - Plain CSS (blueprint-inspired theme)
