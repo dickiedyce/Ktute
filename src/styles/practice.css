@@ -169,7 +169,8 @@
 }
 
 .completion-modal {
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
+  border: 2px solid var(--blueprint-blue);
   padding: var(--space-8);
   border-radius: var(--radius-lg);
   text-align: center;
