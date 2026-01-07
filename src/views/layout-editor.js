@@ -53,6 +53,7 @@ export function createLayoutEditorView(container, options = {}) {
   let layoutName = 'My Custom Layout';
   let currentText = DEFAULT_LAYOUT;
   let validationError = null;
+  let currentLoadedLayoutId = null; // Track currently loaded custom layout
 
   // DOM elements
   let nameInput = null;
@@ -211,6 +212,7 @@ export function createLayoutEditorView(container, options = {}) {
 
       const layout = customLayouts[id];
       if (layout) {
+        currentLoadedLayoutId = id; // Track loaded layout
         editorTextarea.value = layout.definition;
         currentText = layout.definition;
         // Set name to the actual name (for editing)
@@ -223,26 +225,24 @@ export function createLayoutEditorView(container, options = {}) {
 
     // Delete custom layout
     const handleDeleteCustom = () => {
-      const loadCustomDropdown = container.querySelector('#load-custom');
-      const selectedId = loadCustomDropdown.value;
-      
-      if (!selectedId) {
-        alert('Please select a custom layout to delete');
+      // Use the currently loaded layout ID
+      if (!currentLoadedLayoutId) {
+        alert('Please load a custom layout first');
         return;
       }
 
-      const layout = customLayouts[selectedId];
+      const layout = customLayouts[currentLoadedLayoutId];
       if (!layout) return;
 
       if (confirm(`Are you sure you want to delete "${layout.name}"?`)) {
         // Get all layouts
         const allLayouts = storage.get('customLayouts') || {};
-        delete allLayouts[selectedId];
+        delete allLayouts[currentLoadedLayoutId];
         storage.set('customLayouts', allLayouts);
 
         // If this was the active layout, clear it
         const activeLayoutId = preferences.get('layoutId');
-        if (activeLayoutId === selectedId) {
+        if (activeLayoutId === currentLoadedLayoutId) {
           preferences.set('layoutId', null);
         }
 
