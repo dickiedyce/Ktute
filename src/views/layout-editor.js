@@ -123,15 +123,6 @@ export function createLayoutEditorView(container, options = {}) {
         <div class="editor-preview"></div>
       </section>
 
-      <section class="editor-text-container">
-        <textarea 
-          class="layout-text-editor" 
-          spellcheck="false"
-          placeholder="Enter layout definition..."
-        >${escapeHtml(currentText)}</textarea>
-        <div class="validation-error" style="display: none;"></div>
-      </section>
-
       <details class="editor-help">
         <summary class="help-toggle">Syntax Help <kbd>?</kbd></summary>
         <div class="help-tables">
@@ -165,8 +156,17 @@ export function createLayoutEditorView(container, options = {}) {
             </tbody>
           </table>
         </div>
-        <p class="help-hint"><kbd>Esc</kbd> back • <kbd>Ctrl+S</kbd> save</p>
       </details>
+
+      <section class="editor-text-container">
+        <textarea 
+          class="layout-text-editor" 
+          spellcheck="false"
+          placeholder="Enter layout definition..."
+        >${escapeHtml(currentText)}</textarea>
+        <div class="validation-error" style="display: none;"></div>
+        <p class="help-hint"><kbd>Esc</kbd> back • <kbd>Ctrl+S</kbd> save</p>
+      </section>
     `;
 
     container.appendChild(view);

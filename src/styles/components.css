@@ -174,10 +174,10 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-4);
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 /* Editor Toolbar */
@@ -232,7 +232,6 @@
 
 /* Editor Help - toggleable */
 .editor-help {
-  margin-top: auto;
 }
 
 .help-toggle {
@@ -399,11 +398,14 @@
 .editor-text-container {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .layout-text-editor {
   width: 100%;
-  min-height: 180px;
+  flex: 1;
+  min-height: 150px;
   padding: var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
