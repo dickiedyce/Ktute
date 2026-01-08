@@ -10,15 +10,21 @@ A keyboard-first typing tutor for split and custom layouts. Everything runs in t
 - Practice view with live stats (WPM, accuracy) and current-key highlighting
 - LocalStorage persistence for preferences and custom layouts
 
-## Screenshots
-
-### Practice View
-![Practice View](assets/Practice.png)
+## Imported ZMK Keymaps
+Showing that ZMK keymaps can be imported into Ktute's layout editor:
 
 ### Layout Editor
-![Layout Editor](assets/Editor.png)
+![Layout Editor showing freshly imported ZMK keymap.](assets/Imported-editor.png)
 
-### Keyboard Layouts
+### Home View
+![Home View displaying imported keymap.](assets/Imported-home.png)
+
+### Practice View
+![Practice View displaying imported keymap in action.](assets/Imported-practice.png)
+
+## Keyboard Layouts
+
+Vaious included keyboard layouts:
 
 #### Corne
 ![Corne Layout](assets/Corne.png)
@@ -26,11 +32,13 @@ A keyboard-first typing tutor for split and custom layouts. Everything runs in t
 #### Standard 60%
 ![Standard 60% Layout](assets/Standard60percent.png)
 
-#### Svalboard
-![Svalboard Layout](assets/Svalboard.png)
-
 #### Ergodox with Settings
 ![Ergodox Layout with Settings](assets/Ergodox%20settings.png)
+
+## Esoteric Layouts
+
+#### Svalboard + Workman
+![Svalboard Layout](assets/Svalboard.png)
 
 ## Tech Stack
 - Vite + vanilla ES modules
