@@ -147,8 +147,8 @@ export function createLayoutEditorView(container, options = {}) {
           <thead><tr><th colspan="2">Rows &amp; Keys</th></tr></thead>
           <tbody>
             <tr><td><code>row0: q w e | r t y</code></td><td>Use <code>|</code> for split</td></tr>
-            <tr><td><code>thumb: spc ent</code></td><td>Thumb row</td></tr>
-            <tr><td><code>spc:2</code></td><td>Custom width</td></tr>
+            <tr><td><code>thumb:</code> or <code>thumb0:</code></td><td>Thumb row(s)</td></tr>
+            <tr><td><code>spc:2</code> / <code>¦:0.5</code></td><td>Custom width</td></tr>
             <tr><td><code>_</code> / <code>¦</code></td><td>Blank / gap</td></tr>
           </tbody>
         </table>
