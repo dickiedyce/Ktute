@@ -78,99 +78,100 @@ export function createLayoutEditorView(container, options = {}) {
     view.className = 'layout-editor-view';
 
     view.innerHTML = `
-      <header class="editor-header">
-        <h1>Layout Editor</h1>
-        <p class="subtitle">Create custom keyboard layouts</p>
-      </header>
+      <section class="editor-toolbar">
+        <div class="toolbar-group">
+          <label for="layout-name">Name:</label>
+          <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
+        </div>
 
-      <div class="editor-layout">
-        <section class="editor-sidebar">
-          <div class="editor-name-group">
-            <label for="layout-name">Layout Name</label>
-            <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
-          </div>
+        <div class="toolbar-group">
+          <label for="load-custom">Custom:</label>
+          <select id="load-custom" data-action="load-custom">
+            <option value="">-- Select --</option>
+            ${Object.entries(customLayouts)
+              .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+              .join('')}
+          </select>
+          <button class="btn btn-danger btn-sm" data-action="delete-custom" disabled>Delete</button>
+        </div>
 
-          <div class="editor-controls">
-            <label for="load-custom">Load custom layout:</label>
-            <select id="load-custom" data-action="load-custom">
-              <option value="">-- Select --</option>
-              ${Object.entries(customLayouts)
-                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
-                .join('')}
-            </select>
-            <button class="btn btn-danger btn-sm" data-action="delete-custom" disabled>Delete</button>
-          </div>
+        <div class="toolbar-group">
+          <label for="load-builtin">Built-in:</label>
+          <select id="load-builtin" data-action="load-builtin">
+            <option value="">-- Select --</option>
+            ${Object.entries(builtinLayouts)
+              .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+              .join('')}
+          </select>
+        </div>
 
-          <div class="editor-controls">
-            <label for="load-builtin">Load from built-in:</label>
-            <select id="load-builtin" data-action="load-builtin">
-              <option value="">-- Select --</option>
-              ${Object.entries(builtinLayouts)
-                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
-                .join('')}
-            </select>
-          </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" data-action="save">Save</button>
+          <button class="btn btn-secondary" data-action="use-layout">Save &amp; Use</button>
+          <button class="btn btn-secondary" data-action="export">Export</button>
+          <button class="btn btn-secondary" data-action="import">Import</button>
+          <button class="btn btn-secondary" data-action="import-zmk">Import ZMK</button>
+          <input type="file" id="import-file" accept=".txt,.layout" style="display: none;">
+        </div>
+      </section>
 
-          <div class="syntax-help">
-            <h3>Layout Syntax</h3>
-            <dl>
-              <dt>Header:</dt>
-              <dd><code>[layout:name]</code> - Define layout name</dd>
-              <dd><code>rows: 3</code> - Number of regular rows</dd>
-              <dd><code>columns: 6,6</code> - Keys per hand (split) or total (non-split)</dd>
-              <dd><code>split: true</code> - Split keyboard layout</dd>
-              
-              <dt>Rows:</dt>
-              <dd><code>row0: q w e r t | y u i o p</code> - Regular rows (row0, row1, row2...)</dd>
-              <dd><code>thumb: spc ent bspc | alt ctrl gui</code> - Single thumb row</dd>
-              <dd><code>thumb0: ...</code>, <code>thumb1: ...</code> - Multiple thumb rows</dd>
-              
-              <dt>Keys:</dt>
-              <dd><code>a</code>, <code>spc</code>, <code>ctrl</code> - Key with width 1</dd>
-              <dd><code>spc:2</code>, <code>shift:1.5</code> - Key with custom width</dd>
-              <dd><code>_</code> - Blank key (physical key, no label)</dd>
-              <dd><code>¦</code> - Gap (no physical key, 1.0 width)</dd>
-              <dd><code>¦:0.25</code>, <code>¦:0.5</code> - Gap with custom width</dd>
-              
-              <dt>Fingers:</dt>
-              <dd><code>fingers:</code> - Start finger assignment section</dd>
-              <dd><code>row0: 0 0 1 2 3 3 | 6 6 7 8 9 9</code> - Space-separated numbers (one per key)</dd>
-              <dd><code>thumb: 4 4 4 | 5 5 5</code> - 0-4=left (pinky/ring/middle/index/thumb), 5-9=right (thumb/index/middle/ring/pinky)</dd>
-            </dl>
-          </div>
+      <section class="editor-preview-container">
+        <div class="editor-preview"></div>
+      </section>
 
-          <div class="editor-actions">
-            <button class="btn btn-primary" data-action="save">Save Layout</button>
-            <button class="btn btn-secondary" data-action="use-layout">Save &amp; Use</button>
-            <div class="editor-actions-row">
-              <button class="btn btn-secondary" data-action="export">Export</button>
-              <button class="btn btn-secondary" data-action="import">Import</button>
-              <button class="btn btn-secondary" data-action="import-zmk">Import ZMK</button>
-              <input type="file" id="import-file" accept=".txt,.layout" style="display: none;">
-            </div>
-          </div>
-        </section>
+      <section class="editor-text-container">
+        <textarea 
+          class="layout-text-editor" 
+          spellcheck="false"
+          placeholder="Enter layout definition..."
+        >${escapeHtml(currentText)}</textarea>
+        <div class="validation-error" style="display: none;"></div>
+      </section>
 
-        <section class="editor-main">
-          <div class="editor-text-container">
-            <textarea 
-              class="layout-text-editor" 
-              spellcheck="false"
-              placeholder="Enter layout definition..."
-            >${escapeHtml(currentText)}</textarea>
-            <div class="validation-error" style="display: none;"></div>
-          </div>
+      <section class="editor-help">
+        <div class="help-column">
+          <h3>Structure</h3>
+          <dl>
+            <dt><code>[layout:name]</code></dt>
+            <dd>Define layout name</dd>
+            <dt><code>rows: 3</code></dt>
+            <dd>Number of regular rows</dd>
+            <dt><code>columns: 6,6</code></dt>
+            <dd>Keys per hand (split) or total</dd>
+            <dt><code>split: true</code></dt>
+            <dd>Split keyboard layout</dd>
+          </dl>
+        </div>
 
-          <div class="editor-preview-container">
-            <h3>Preview</h3>
-            <div class="editor-preview"></div>
-            <p class="hint">Press <kbd>Escape</kbd> to go back • <kbd>Ctrl+S</kbd> to save</p>
-          </div>
-        </section>
-      </div>
+        <div class="help-column">
+          <h3>Rows &amp; Keys</h3>
+          <dl>
+            <dt><code>row0: q w e r t | y u i o p</code></dt>
+            <dd>Regular rows use <code>|</code> for split</dd>
+            <dt><code>thumb: spc ent | alt ctrl</code></dt>
+            <dd>Thumb row (or thumb0, thumb1...)</dd>
+            <dt><code>spc:2</code> / <code>shift:1.5</code></dt>
+            <dd>Custom key width</dd>
+            <dt><code>_</code> / <code>¦</code> / <code>¦:0.5</code></dt>
+            <dd>Blank key / gap / sized gap</dd>
+          </dl>
+        </div>
 
-      <nav class="editor-nav">
-      </nav>
+        <div class="help-column">
+          <h3>Fingers</h3>
+          <dl>
+            <dt><code>fingers:</code></dt>
+            <dd>Start finger assignment section</dd>
+            <dt><code>row0: 0 0 1 2 3 3 | 6 6 7 8 9 9</code></dt>
+            <dd>One number per key</dd>
+            <dt>0-4 = Left hand</dt>
+            <dd>pinky / ring / middle / index / thumb</dd>
+            <dt>5-9 = Right hand</dt>
+            <dd>thumb / index / middle / ring / pinky</dd>
+          </dl>
+          <p class="hint">Press <kbd>Escape</kbd> to go back • <kbd>Ctrl+S</kbd> to save</p>
+        </div>
+      </section>
     `;
 
     container.appendChild(view);
