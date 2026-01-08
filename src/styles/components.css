@@ -180,27 +180,32 @@
   gap: var(--space-3);
 }
 
-/* Editor Toolbar */
+/* Editor Toolbar - 2 column layout */
 .editor-toolbar {
   display: flex;
-  flex-wrap: nowrap;
-  gap: var(--space-3);
-  align-items: center;
+  gap: var(--space-4);
+  align-items: stretch;
 }
 
-.toolbar-group {
+.toolbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.toolbar-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
-.toolbar-group label {
+.toolbar-row label {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.toolbar-group select {
+.toolbar-row select {
   padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-sm);
   font-family: var(--font-sans);
@@ -211,9 +216,13 @@
   cursor: pointer;
 }
 
-.toolbar-actions {
+.toolbar-right {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  align-items: center;
+  align-content: center;
+  margin-left: auto;
 }
 
 .editor-header {

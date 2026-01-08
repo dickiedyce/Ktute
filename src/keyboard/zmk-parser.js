@@ -154,6 +154,9 @@ export function parseZmkKeymap(content) {
     return result;
   }
   
+  // Find the opening brace of keymap
+  const keymapOpenBrace = content.indexOf('{', keymapStart);
+  
   // Find the matching closing brace
   let braceCount = 0;
   let keymapEnd = -1;
@@ -176,23 +179,31 @@ export function parseZmkKeymap(content) {
     return result;
   }
   
-  const keymapBlock = content.slice(keymapStart, keymapEnd);
+  // Get content inside keymap block (skip the keymap { and closing })
+  const keymapContent = content.slice(keymapOpenBrace + 1, keymapEnd - 1);
   
-  // Find all layer blocks
-  // Match pattern: layer_name { bindings = < ... >; };
-  const layerRegex = /(\w+)\s*\{\s*bindings\s*=\s*<([^>]+)>/g;
-  let match;
+  // Find each layer by looking for: name { ... bindings = < ... > ... };
+  // We iterate through looking for blocks with bindings
+  const bindingsPattern = /bindings\s*=\s*<([\s\S]*?)>/g;
+  let bindingsMatch;
   
-  while ((match = layerRegex.exec(keymapBlock)) !== null) {
-    const layerName = match[1];
-    const bindingsStr = match[2];
+  while ((bindingsMatch = bindingsPattern.exec(keymapContent)) !== null) {
+    const bindingsStart = bindingsMatch.index;
+    const bindingsStr = bindingsMatch[1];
     
-    const keys = parseBindings(bindingsStr);
+    // Find the layer name by looking backwards from bindings for "name {"
+    const beforeBindings = keymapContent.slice(0, bindingsStart);
+    const layerMatch = beforeBindings.match(/(\w+)\s*\{[^{}]*$/);
     
-    result.layers.push({
-      name: layerName,
-      keys,
-    });
+    if (layerMatch) {
+      const layerName = layerMatch[1];
+      const keys = parseBindings(bindingsStr);
+      
+      result.layers.push({
+        name: layerName,
+        keys,
+      });
+    }
   }
   
   return result;

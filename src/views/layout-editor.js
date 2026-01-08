@@ -83,33 +83,30 @@ export function createLayoutEditorView(container, options = {}) {
       </header>
 
       <section class="editor-toolbar">
-        <div class="toolbar-group">
-          <label for="layout-name">Name:</label>
-          <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
+        <div class="toolbar-left">
+          <div class="toolbar-row">
+            <label for="layout-name">Name:</label>
+            <input type="text" id="layout-name" class="layout-name-input" value="${escapeHtml(layoutName)}" placeholder="My Layout" />
+          </div>
+          <div class="toolbar-row">
+            <label for="load-custom">Custom:</label>
+            <select id="load-custom" data-action="load-custom">
+              <option value="">-- Select --</option>
+              ${Object.entries(customLayouts)
+                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+                .join('')}
+            </select>
+            <button class="btn btn-danger btn-sm" data-action="delete-custom" disabled>Delete</button>
+            <label for="load-builtin">Built-in:</label>
+            <select id="load-builtin" data-action="load-builtin">
+              <option value="">-- Select --</option>
+              ${Object.entries(builtinLayouts)
+                .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
+                .join('')}
+            </select>
+          </div>
         </div>
-
-        <div class="toolbar-group">
-          <label for="load-custom">Custom:</label>
-          <select id="load-custom" data-action="load-custom">
-            <option value="">-- Select --</option>
-            ${Object.entries(customLayouts)
-              .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
-              .join('')}
-          </select>
-          <button class="btn btn-danger btn-sm" data-action="delete-custom" disabled>Delete</button>
-        </div>
-
-        <div class="toolbar-group">
-          <label for="load-builtin">Built-in:</label>
-          <select id="load-builtin" data-action="load-builtin">
-            <option value="">-- Select --</option>
-            ${Object.entries(builtinLayouts)
-              .map(([id, layout]) => `<option value="${id}">${layout.name}</option>`)
-              .join('')}
-          </select>
-        </div>
-
-        <div class="toolbar-actions">
+        <div class="toolbar-right">
           <button class="btn btn-primary" data-action="save">Save</button>
           <button class="btn btn-secondary" data-action="use-layout">Save &amp; Use</button>
           <button class="btn btn-secondary" data-action="export">Export</button>
