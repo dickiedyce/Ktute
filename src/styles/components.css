@@ -235,48 +235,53 @@
   color: var(--text-muted);
 }
 
-/* Editor Help - 3 column layout */
+/* Editor Help - 3 column table layout */
 .editor-help {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-3);
+  align-items: start;
 }
 
-.help-column {
+.help-table {
   background: var(--bg-secondary);
   border: 1px solid var(--bg-tertiary);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: var(--font-size-sm);
 }
 
-.help-column h3 {
-  font-size: var(--font-size-sm);
+.help-table th {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
-  margin-bottom: var(--space-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--bg-tertiary);
 }
 
-.help-column dl {
-  margin: 0;
-}
-
-.help-column dt {
-  margin-top: var(--space-2);
-  margin-bottom: var(--space-1);
-}
-
-.help-column dt:first-of-type {
-  margin-top: 0;
-}
-
-.help-column dd {
-  margin: 0 0 var(--space-2) 0;
+.help-table td {
+  padding: var(--space-1) var(--space-3);
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  vertical-align: top;
 }
 
-.help-column code {
+.help-table td:first-child {
+  white-space: nowrap;
+}
+
+.help-table tbody tr:first-child td {
+  padding-top: var(--space-2);
+}
+
+.help-table tbody tr:last-child td {
+  padding-bottom: var(--space-2);
+}
+
+.help-table code {
   background: var(--bg-primary);
   padding: 0.1em 0.3em;
   border-radius: 3px;
@@ -285,16 +290,16 @@
   color: var(--accent);
 }
 
-.help-column .hint {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--bg-tertiary);
+.help-hint {
+  grid-column: 1 / -1;
+  text-align: center;
   color: var(--text-muted);
   font-size: var(--font-size-sm);
+  margin: 0;
 }
 
-.help-column .hint kbd {
-  background: var(--bg-primary);
+.help-hint kbd {
+  background: var(--bg-secondary);
   padding: 0.1em 0.4em;
   border-radius: 3px;
   font-family: var(--font-mono);

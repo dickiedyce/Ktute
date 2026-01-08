@@ -78,6 +78,10 @@ export function createLayoutEditorView(container, options = {}) {
     view.className = 'layout-editor-view';
 
     view.innerHTML = `
+      <header class="editor-header">
+        <h1>Layout Editor</h1>
+      </header>
+
       <section class="editor-toolbar">
         <div class="toolbar-group">
           <label for="layout-name">Name:</label>
@@ -129,48 +133,37 @@ export function createLayoutEditorView(container, options = {}) {
       </section>
 
       <section class="editor-help">
-        <div class="help-column">
-          <h3>Structure</h3>
-          <dl>
-            <dt><code>[layout:name]</code></dt>
-            <dd>Define layout name</dd>
-            <dt><code>rows: 3</code></dt>
-            <dd>Number of regular rows</dd>
-            <dt><code>columns: 6,6</code></dt>
-            <dd>Keys per hand (split) or total</dd>
-            <dt><code>split: true</code></dt>
-            <dd>Split keyboard layout</dd>
-          </dl>
-        </div>
+        <table class="help-table">
+          <thead><tr><th colspan="2">Structure</th></tr></thead>
+          <tbody>
+            <tr><td><code>[layout:name]</code></td><td>Define layout name</td></tr>
+            <tr><td><code>rows: 3</code></td><td>Number of rows</td></tr>
+            <tr><td><code>columns: 6,6</code></td><td>Keys per hand</td></tr>
+            <tr><td><code>split: true</code></td><td>Split keyboard</td></tr>
+          </tbody>
+        </table>
 
-        <div class="help-column">
-          <h3>Rows &amp; Keys</h3>
-          <dl>
-            <dt><code>row0: q w e r t | y u i o p</code></dt>
-            <dd>Regular rows use <code>|</code> for split</dd>
-            <dt><code>thumb: spc ent | alt ctrl</code></dt>
-            <dd>Thumb row (or thumb0, thumb1...)</dd>
-            <dt><code>spc:2</code> / <code>shift:1.5</code></dt>
-            <dd>Custom key width</dd>
-            <dt><code>_</code> / <code>¦</code> / <code>¦:0.5</code></dt>
-            <dd>Blank key / gap / sized gap</dd>
-          </dl>
-        </div>
+        <table class="help-table">
+          <thead><tr><th colspan="2">Rows &amp; Keys</th></tr></thead>
+          <tbody>
+            <tr><td><code>row0: q w e | r t y</code></td><td>Use <code>|</code> for split</td></tr>
+            <tr><td><code>thumb: spc ent</code></td><td>Thumb row</td></tr>
+            <tr><td><code>spc:2</code></td><td>Custom width</td></tr>
+            <tr><td><code>_</code> / <code>¦</code></td><td>Blank / gap</td></tr>
+          </tbody>
+        </table>
 
-        <div class="help-column">
-          <h3>Fingers</h3>
-          <dl>
-            <dt><code>fingers:</code></dt>
-            <dd>Start finger assignment section</dd>
-            <dt><code>row0: 0 0 1 2 3 3 | 6 6 7 8 9 9</code></dt>
-            <dd>One number per key</dd>
-            <dt>0-4 = Left hand</dt>
-            <dd>pinky / ring / middle / index / thumb</dd>
-            <dt>5-9 = Right hand</dt>
-            <dd>thumb / index / middle / ring / pinky</dd>
-          </dl>
-          <p class="hint">Press <kbd>Escape</kbd> to go back • <kbd>Ctrl+S</kbd> to save</p>
-        </div>
+        <table class="help-table">
+          <thead><tr><th colspan="2">Fingers</th></tr></thead>
+          <tbody>
+            <tr><td><code>fingers:</code></td><td>Start finger section</td></tr>
+            <tr><td><code>row0: 0 1 2 | 7 8 9</code></td><td>One per key</td></tr>
+            <tr><td>0-4 Left</td><td>pinky→thumb</td></tr>
+            <tr><td>5-9 Right</td><td>thumb→pinky</td></tr>
+          </tbody>
+        </table>
+
+        <p class="help-hint"><kbd>Esc</kbd> back • <kbd>Ctrl+S</kbd> save</p>
       </section>
     `;
 
