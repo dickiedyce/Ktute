@@ -655,6 +655,45 @@ stagger: none
     }
     layout += `thumb: ${leftThumb.join(' ')} | ${rightThumb.join(' ')}\n`;
 
+    // Add finger assignments
+    layout += `\nfingers:\n`;
+    
+    // Generate finger pattern for each row
+    // Left hand: 0=pinky, 1=ring, 2=middle, 3=index, 4=thumb
+    // Right hand: 5=thumb, 6=index, 7=middle, 8=ring, 9=pinky
+    const generateFingerRow = (numCols) => {
+      const leftFingers = [];
+      const rightFingers = [];
+      
+      for (let c = 0; c < numCols; c++) {
+        // Map column to finger (pinky=0, ring=1, middle=2, index=3,4)
+        if (c === 0) leftFingers.push(0);
+        else if (c === 1) leftFingers.push(1);
+        else if (c === 2) leftFingers.push(2);
+        else leftFingers.push(3); // index handles rest
+      }
+      
+      for (let c = 0; c < numCols; c++) {
+        // Right hand mirror (index=6, middle=7, ring=8, pinky=9)
+        const fromRight = numCols - 1 - c;
+        if (fromRight === 0) rightFingers.push(9);
+        else if (fromRight === 1) rightFingers.push(8);
+        else if (fromRight === 2) rightFingers.push(7);
+        else rightFingers.push(6); // index handles rest
+      }
+      
+      return `${leftFingers.join(' ')} | ${rightFingers.join(' ')}`;
+    };
+    
+    for (let r = 0; r < rows; r++) {
+      layout += `row${r}: ${generateFingerRow(cols)}\n`;
+    }
+    
+    // Thumb row - all thumbs (4 for left, 5 for right)
+    const leftThumbFingers = Array(thumbCount).fill(4).join(' ');
+    const rightThumbFingers = Array(thumbCount).fill(5).join(' ');
+    layout += `thumb: ${leftThumbFingers} | ${rightThumbFingers}\n`;
+
     return layout;
   }
 
