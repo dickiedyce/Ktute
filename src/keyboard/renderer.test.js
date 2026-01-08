@@ -157,6 +157,36 @@ describe('Keyboard Renderer', () => {
       expect(activeKey).toBeNull();
     });
 
+    it('should highlight spc key when space character is passed', () => {
+      const renderer = createKeyboardRenderer(container);
+      const physicalLayout = {
+        name: 'test',
+        keys: [{ row: 0, col: 0, hand: 'left', isThumb: true }],
+      };
+      const keyMapping = { layers: [{ keys: ['spc'] }] };
+
+      renderer.render(physicalLayout, keyMapping);
+      renderer.highlightKey(' ');
+      
+      const activeKey = container.querySelector('[data-key="spc"].active');
+      expect(activeKey).not.toBeNull();
+    });
+
+    it('should mark spc key when space character is passed', () => {
+      const renderer = createKeyboardRenderer(container);
+      const physicalLayout = {
+        name: 'test',
+        keys: [{ row: 0, col: 0, hand: 'left', isThumb: true }],
+      };
+      const keyMapping = { layers: [{ keys: ['spc'] }] };
+
+      renderer.render(physicalLayout, keyMapping);
+      renderer.markKey(' ', 'correct');
+      
+      const correctKey = container.querySelector('[data-key="spc"].correct');
+      expect(correctKey).not.toBeNull();
+    });
+
     it('should support split layout with gap between hands', () => {
       const renderer = createKeyboardRenderer(container);
       const physicalLayout = {

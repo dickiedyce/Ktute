@@ -309,6 +309,7 @@ export function createPracticeView(container, options = {}) {
   function restart() {
     destroy();
     init();
+    activate();
   }
 
   /**

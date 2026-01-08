@@ -72,7 +72,8 @@ export function getFingerForKey(keyIndex, mapping) {
   if (!mapping || !mapping.fingers) {
     return null;
   }
-  return mapping.fingers[keyIndex] || null;
+  const finger = mapping.fingers[keyIndex];
+  return finger !== undefined ? finger : null;
 }
 
 /**

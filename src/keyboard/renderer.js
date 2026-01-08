@@ -13,6 +13,23 @@ const KEY_RADIUS = 6;
 const SPLIT_GAP = 80;
 const THUMB_OFFSET_Y = 20;
 
+// Map from typed characters to key labels
+const CHAR_TO_LABEL = {
+  ' ': 'spc',
+  '\t': 'tab',
+  '\n': 'ent',
+  '\r': 'ent',
+};
+
+/**
+ * Get the key label for a character
+ * @param {string} char - The character to look up
+ * @returns {string} The key label
+ */
+function charToKeyLabel(char) {
+  return CHAR_TO_LABEL[char] || char;
+}
+
 /**
  * Create SVG element
  * @param {string} tag
@@ -252,7 +269,8 @@ export function createKeyboardRenderer(container, options = {}) {
    * @param {string} keyLabel
    */
   function highlightKey(keyLabel) {
-    const keyGroup = keyElements.get(keyLabel.toLowerCase());
+    const label = charToKeyLabel(keyLabel).toLowerCase();
+    const keyGroup = keyElements.get(label);
     if (keyGroup) {
       keyGroup.classList.add('active');
     }
@@ -264,7 +282,8 @@ export function createKeyboardRenderer(container, options = {}) {
    * @param {string} status - 'correct' or 'error'
    */
   function markKey(keyLabel, status) {
-    const keyGroup = keyElements.get(keyLabel.toLowerCase());
+    const label = charToKeyLabel(keyLabel).toLowerCase();
+    const keyGroup = keyElements.get(label);
     if (keyGroup) {
       keyGroup.classList.add(status);
     }

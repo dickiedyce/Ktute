@@ -29,16 +29,18 @@
   stroke: var(--blueprint-blue-dark);
 }
 
-.key.active .key-bg {
+.key.active .key-bg,
+.key.active[data-finger] .key-bg {
   fill: var(--blueprint-blue);
   stroke: var(--blueprint-blue-dark);
 }
 
 .key.active .key-label {
-  fill: red;
+  fill: var(--bg-primary);
 }
 
-.key.correct .key-bg {
+.key.correct .key-bg,
+.key.correct[data-finger] .key-bg {
   fill: var(--blueprint-blue-light);
   stroke: var(--blueprint-blue);
 }
@@ -47,7 +49,8 @@
   fill: var(--blueprint-blue-dark);
 }
 
-.key.error .key-bg {
+.key.error .key-bg,
+.key.error[data-finger] .key-bg {
   fill: var(--blueprint-blue-dark);
   stroke: var(--blueprint-blue-dark);
 }

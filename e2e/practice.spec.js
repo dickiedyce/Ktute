@@ -130,4 +130,36 @@ test.describe('Practice View', () => {
     await expect(page.locator('.completion-overlay')).not.toBeVisible();
     await expect(page.locator('.text-display .char.current')).toBeVisible();
   });
+
+  test('should accept keyboard input after restart', async ({ page }) => {
+    // Complete the practice
+    const chars = page.locator('.text-display .char');
+    const count = await chars.count();
+    
+    for (let i = 0; i < count; i++) {
+      const charEl = page.locator('.text-display .char.current');
+      const text = await charEl.textContent();
+      const charToType = text === '␣' ? ' ' : text;
+      await page.keyboard.type(charToType);
+    }
+    
+    await expect(page.locator('.completion-overlay')).toBeVisible();
+    
+    // Click restart
+    await page.locator('.restart-btn').click();
+    
+    // Verify we can type after restart
+    const initialProgress = await page.locator('.stats-display .progress .value').textContent();
+    expect(initialProgress).toBe('0');
+    
+    // Type a character (any character will advance progress)
+    const firstCharEl = page.locator('.text-display .char.current');
+    const firstCharText = await firstCharEl.textContent();
+    const charToType = firstCharText === '␣' ? ' ' : firstCharText;
+    await page.keyboard.type(charToType);
+    
+    // Progress should have incremented, proving input is being accepted
+    const newProgress = await page.locator('.stats-display .progress .value').textContent();
+    expect(newProgress).toBe('1');
+  });
 });
