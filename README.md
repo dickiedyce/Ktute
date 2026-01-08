@@ -9,6 +9,8 @@ A keyboard-first typing tutor for split and custom layouts. Everything runs in t
 - Finger highlighting (10-finger scheme, 0-9) and per-key coloring
 - Practice view with live stats (WPM, accuracy) and current-key highlighting
 - LocalStorage persistence for preferences and custom layouts
+- **ZMK keymap import** – paste a ZMK devicetree keymap and auto-generate a Ktute layout with finger assignments
+- Toggleable help section in the layout editor for a cleaner workspace
 
 ## Imported ZMK Keymaps
 Showing that ZMK keymaps can be imported into Ktute's layout editor:
