@@ -24,7 +24,7 @@ A keyboard-first typing tutor for split and custom layouts. Everything runs in t
 ![Corne Layout](assets/Corne.png)
 
 #### Standard 60%
-![Standard 60% Layout](assets/Standard60%.png)
+![Standard 60% Layout](assets/Standard60percent.png)
 
 #### Svalboard
 ![Svalboard Layout](assets/Svalboard.png)
