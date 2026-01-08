@@ -59,21 +59,55 @@ export const ZMK_TO_LABEL = {
   SLASH: '/',
   SEMI: ';',
   SEMICOLON: ';',
+  COLON: ':',
   SQT: "'",
   APOS: "'",
   APOSTROPHE: "'",
   DQT: '"',
   DOUBLE_QUOTES: '"',
   LBKT: '[',
-  LBRC: '[',
   RBKT: ']',
-  RBRC: ']',
+  LBRC: '{',
+  RBRC: '}',
+  LPAR: '(',
+  RPAR: ')',
+  LT: '<',
+  GT: '>',
   BSLH: '\\',
   BACKSLASH: '\\',
+  PIPE: '|',
   MINUS: '-',
+  UNDER: '_',
+  UNDERSCORE: '_',
   EQUAL: '=',
+  PLUS: '+',
   GRAVE: '`',
   TILDE: '~',
+  QMARK: '?',
+  EXCL: '!',
+  AT: '@',
+  HASH: '#',
+  POUND: '#',
+  DLLR: '$',
+  DOLLAR: '$',
+  PRCNT: '%',
+  PERCENT: '%',
+  CARET: '^',
+  AMPS: '&',
+  STAR: '*',
+  ASTRK: '*',
+  
+  // Media keys
+  C_VOL_UP: 'vol+',
+  C_VOLUME_UP: 'vol+',
+  C_VOL_DN: 'vol-',
+  C_VOLUME_DOWN: 'vol-',
+  K_MUTE: 'mute',
+  C_MUTE: 'mute',
+  C_PP: 'play',
+  C_PLAY_PAUSE: 'play',
+  C_NEXT: 'next',
+  C_PREV: 'prev',
   
   // Arrow keys
   UP: '↑',
@@ -237,13 +271,57 @@ function parseBindings(bindingsStr) {
       // Sticky layer: &sl LAYER
       i++; // skip layer number
       keys.push('sl');
-    } else if (token === '&bootloader' || token === '&reset' || token === '&bt' || token === '&out') {
-      // System bindings - skip any arguments
+    } else if (token === '&bt') {
+      // Bluetooth: &bt BT_CLR or &bt BT_SEL 0
+      i++;
+      if (i < tokens.length) {
+        const btCmd = tokens[i];
+        if (btCmd === 'BT_SEL' && i + 1 < tokens.length) {
+          i++; // skip the number
+          keys.push('bt' + tokens[i]);
+        } else if (btCmd === 'BT_CLR') {
+          keys.push('btclr');
+        } else {
+          keys.push('bt');
+        }
+      } else {
+        keys.push('bt');
+      }
+    } else if (token === '&bootloader' || token === '&reset' || token === '&sys_reset') {
+      keys.push('rst');
+    } else if (token === '&out') {
+      i++; // skip argument
+      keys.push('out');
+    } else if (token === '&studio_unlock') {
       keys.push('_');
-      // These might have arguments, but we'll just add the binding itself
     } else if (token.startsWith('&')) {
-      // Unknown binding - skip it
-      keys.push('_');
+      // Custom behavior or macro - look ahead for arguments
+      // Custom hold-tap behaviors typically have 2 args: &gqt MOD KEY
+      const behaviorName = token.slice(1);
+      
+      // Peek ahead to see if next tokens look like keycodes
+      let argCount = 0;
+      let lastKeycode = null;
+      
+      while (i + 1 < tokens.length && !tokens[i + 1].startsWith('&')) {
+        i++;
+        argCount++;
+        const arg = tokens[i];
+        // Check if it looks like a keycode (uppercase, or a modifier pattern)
+        if (/^[A-Z0-9_]+$/.test(arg) || /^L[CSAG]\(/.test(arg) || /^R[CSAG]\(/.test(arg)) {
+          lastKeycode = arg;
+        }
+      }
+      
+      if (lastKeycode) {
+        // Use the last keycode (typically the tap key in hold-tap)
+        keys.push(zmkToLabel(lastKeycode));
+      } else if (argCount === 0) {
+        // No args - likely a macro, use behavior name
+        keys.push(behaviorName.toLowerCase().slice(0, 4) || '_');
+      } else {
+        keys.push('_');
+      }
     }
     // Skip anything else (comments, etc.)
     

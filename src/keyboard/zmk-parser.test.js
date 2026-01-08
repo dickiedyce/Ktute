@@ -227,4 +227,79 @@ describe('ZMK Parser', () => {
       expect(ZMK_TO_LABEL['LGUI']).toBe('lgui');
     });
   });
+
+  describe('realistic keymaps', () => {
+    it('should parse a keymap with custom behaviors and bluetooth', () => {
+      const zmkConfig = `
+/ {
+    behaviors {
+        gqt: global-quick-tap {
+            compatible = "zmk,behavior-hold-tap";
+            bindings = <&kp>, <&kp>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+&gqt LS(TAB) TAB  &kp Q  &kp D  &kp R  &kp W  &kp B    &kp J  &kp F  &kp U  &kp P  &kp SEMI  &kp ESC
+&gqt DEL BSPC     &kp A  &kp S  &kp H  &kp T  &kp G    &kp Y  &kp N  &kp E  &kp O  &kp I     &kp SQT
+&kp LSHFT         &kp Z  &kp X  &kp M  &kp C  &kp V    &kp K  &kp L  &kp COMMA  &kp DOT  &kp FSLH  &kp RCTRL
+                                &kp LALT  &kp LGUI  &lt 1 SPACE    &kp RET  &mo 1  &kp TILDE
+            >;
+        };
+
+        lower_layer {
+            bindings = <
+&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp C_VOLUME_UP  &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &trans
+&trans      &kp F1        &kp F2        &kp F3        &kp F4        &kp F5          &kp K_MUTE       &kp HOME  &kp PG_DN &kp PG_UP &kp END  &studio_unlock
+                                        &trans        &trans        &trans          &trans           &trans    &trans
+            >;
+        };
+    };
+};`;
+
+      const result = parseZmkKeymap(zmkConfig);
+      
+      expect(result.layers).toHaveLength(2);
+      
+      // Check base layer - custom behavior should extract tap key
+      const baseKeys = result.layers[0].keys;
+      expect(baseKeys[0]).toBe('tab');  // &gqt LS(TAB) TAB -> TAB
+      expect(baseKeys[1]).toBe('q');
+      expect(baseKeys[6]).toBe('j');
+      expect(baseKeys[12]).toBe('bspc'); // &gqt DEL BSPC -> BSPC
+      expect(baseKeys[24]).toBe('lsft');
+      expect(baseKeys[30]).toBe('k');
+      expect(baseKeys[36]).toBe('lalt');
+      expect(baseKeys[38]).toBe('spc'); // &lt 1 SPACE -> SPACE
+      expect(baseKeys[40]).toBe('mo');  // &mo 1
+      
+      // Check lower layer - bluetooth bindings
+      const lowerKeys = result.layers[1].keys;
+      expect(lowerKeys[0]).toBe('btclr'); // &bt BT_CLR
+      expect(lowerKeys[1]).toBe('bt0');   // &bt BT_SEL 0
+      expect(lowerKeys[6]).toBe('vol+');  // &kp C_VOLUME_UP
+      expect(lowerKeys[12]).toBe('_');    // &trans
+      expect(lowerKeys[18]).toBe('mute'); // &kp K_MUTE
+    });
+
+    it('should handle bracket and punctuation keys correctly', () => {
+      const zmkConfig = `
+/ {
+    keymap {
+        default_layer {
+            bindings = <
+                &kp LBKT &kp RBKT &kp LBRC &kp RBRC &kp LPAR &kp RPAR &kp LT &kp GT &kp PIPE &kp QMARK
+            >;
+        };
+    };
+};`;
+
+      const result = parseZmkKeymap(zmkConfig);
+      expect(result.layers[0].keys).toEqual(['[', ']', '{', '}', '(', ')', '<', '>', '|', '?']);
+    });
+  });
 });
