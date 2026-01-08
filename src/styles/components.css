@@ -511,3 +511,68 @@
   min-width: 1.5em;
   text-align: center;
 }
+
+/* ZMK Import Modal */
+.zmk-import-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zmk-import-modal .modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.zmk-import-modal .modal-content {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 2px solid var(--blueprint-blue);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s ease;
+}
+
+.zmk-import-modal h2 {
+  color: var(--blueprint-blue);
+  margin-bottom: var(--space-2);
+}
+
+.zmk-import-modal p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.zmk-import-modal .zmk-textarea {
+  flex: 1;
+  min-height: 300px;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.zmk-import-modal .zmk-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.zmk-import-modal .modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-4);
+}

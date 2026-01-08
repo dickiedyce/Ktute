@@ -156,6 +156,77 @@ row1: 1 2 3 | 6 7 8
       const importBtn = container.querySelector('[data-action="import"]');
       expect(importBtn).not.toBeNull();
     });
+
+    it('should have import ZMK button', () => {
+      createLayoutEditorView(container);
+      const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+      expect(importZmkBtn).not.toBeNull();
+    });
+  });
+
+  describe('ZMK import', () => {
+    it('should show ZMK import modal when button clicked', () => {
+      createLayoutEditorView(container);
+      const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+      importZmkBtn.click();
+      
+      const modal = container.querySelector('.zmk-import-modal');
+      expect(modal).not.toBeNull();
+    });
+
+    it('should have textarea for ZMK keymap in modal', () => {
+      createLayoutEditorView(container);
+      const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+      importZmkBtn.click();
+      
+      const textarea = container.querySelector('.zmk-import-modal textarea');
+      expect(textarea).not.toBeNull();
+    });
+
+    it('should close modal when cancel is clicked', () => {
+      createLayoutEditorView(container);
+      const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+      importZmkBtn.click();
+      
+      const cancelBtn = container.querySelector('.zmk-import-modal [data-action="cancel-zmk"]');
+      cancelBtn.click();
+      
+      const modal = container.querySelector('.zmk-import-modal');
+      expect(modal).toBeNull();
+    });
+
+    it('should parse and apply ZMK keymap when import is clicked', () => {
+      createLayoutEditorView(container);
+      const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+      importZmkBtn.click();
+      
+      const textarea = container.querySelector('.zmk-import-modal textarea');
+      textarea.value = `
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+        default_layer {
+            bindings = <
+                &kp Q &kp W &kp E &kp R &kp T &kp Y
+                &kp A &kp S &kp D &kp F &kp G &kp H
+            >;
+        };
+    };
+};`;
+      
+      const applyBtn = container.querySelector('.zmk-import-modal [data-action="apply-zmk"]');
+      applyBtn.click();
+      
+      // Modal should close
+      const modal = container.querySelector('.zmk-import-modal');
+      expect(modal).toBeNull();
+      
+      // Editor should contain the imported keys
+      const editor = container.querySelector('.layout-text-editor');
+      expect(editor.value).toContain('q');
+      expect(editor.value).toContain('w');
+      expect(editor.value).toContain('e');
+    });
   });
 
   describe('destroy', () => {

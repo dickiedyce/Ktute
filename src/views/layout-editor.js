@@ -14,6 +14,7 @@ import {
 } from '../keyboard/combined-layouts.js';
 import { createKeyboardRenderer } from '../keyboard/renderer.js';
 import { parseCombinedLayout } from '../keyboard/layout-parser.js';
+import { parseZmkKeymap } from '../keyboard/zmk-parser.js';
 
 const DEFAULT_LAYOUT = `[layout:my-layout]
 rows: 3
@@ -144,6 +145,7 @@ export function createLayoutEditorView(container, options = {}) {
             <div class="editor-actions-row">
               <button class="btn btn-secondary" data-action="export">Export</button>
               <button class="btn btn-secondary" data-action="import">Import</button>
+              <button class="btn btn-secondary" data-action="import-zmk">Import ZMK</button>
               <input type="file" id="import-file" accept=".txt,.layout" style="display: none;">
             </div>
           </div>
@@ -399,6 +401,11 @@ export function createLayoutEditorView(container, options = {}) {
       e.target.value = ''; // Reset for next import
     };
 
+    // Show ZMK import modal
+    const handleImportZmk = () => {
+      showZmkImportModal();
+    };
+
     // Ctrl+S to save
     const handleKeyDown = (e) => {
       if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
@@ -447,6 +454,9 @@ export function createLayoutEditorView(container, options = {}) {
     const importBtn = container.querySelector('[data-action="import"]');
     importBtn.addEventListener('click', handleImport);
 
+    const importZmkBtn = container.querySelector('[data-action="import-zmk"]');
+    importZmkBtn.addEventListener('click', handleImportZmk);
+
     const fileInput = container.querySelector('#import-file');
     fileInput.addEventListener('change', handleFileSelected);
 
@@ -461,6 +471,7 @@ export function createLayoutEditorView(container, options = {}) {
       { element: useBtn, event: 'click', handler: handleSaveAndUse },
       { element: exportBtn, event: 'click', handler: handleExport },
       { element: importBtn, event: 'click', handler: handleImport },
+      { element: importZmkBtn, event: 'click', handler: handleImportZmk },
       { element: fileInput, event: 'change', handler: handleFileSelected }
     );
   }
@@ -495,6 +506,163 @@ export function createLayoutEditorView(container, options = {}) {
    */
   function hideError() {
     errorDisplay.style.display = 'none';
+  }
+
+  /**
+   * Show ZMK import modal
+   */
+  function showZmkImportModal() {
+    const modal = document.createElement('div');
+    modal.className = 'zmk-import-modal';
+    modal.innerHTML = `
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>Import ZMK Keymap</h2>
+        <p>Paste your ZMK keymap file content below:</p>
+        <textarea class="zmk-textarea" placeholder="/ {
+    keymap {
+        compatible = &quot;zmk,keymap&quot;;
+        default_layer {
+            bindings = <
+                &kp Q &kp W ...
+            >;
+        };
+    };
+};"></textarea>
+        <div class="modal-actions">
+          <button class="btn btn-primary" data-action="apply-zmk">Import</button>
+          <button class="btn btn-secondary" data-action="cancel-zmk">Cancel</button>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(modal);
+
+    const textarea = modal.querySelector('.zmk-textarea');
+    const applyBtn = modal.querySelector('[data-action="apply-zmk"]');
+    const cancelBtn = modal.querySelector('[data-action="cancel-zmk"]');
+    const backdrop = modal.querySelector('.modal-backdrop');
+
+    const closeModal = () => {
+      modal.remove();
+    };
+
+    const applyZmk = () => {
+      const zmkContent = textarea.value;
+      const parsed = parseZmkKeymap(zmkContent);
+      
+      if (parsed.layers.length === 0) {
+        alert('Could not parse ZMK keymap. Please check the format.');
+        return;
+      }
+
+      // Convert to Ktute format
+      const keys = parsed.layers[0].keys;
+      const newLayout = generateLayoutFromKeys(keys);
+      
+      editorTextarea.value = newLayout;
+      currentText = newLayout;
+      layoutName = 'Imported ZMK Layout';
+      nameInput.value = layoutName;
+      
+      updatePreview();
+      closeModal();
+    };
+
+    applyBtn.addEventListener('click', applyZmk);
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    
+    textarea.focus();
+  }
+
+  /**
+   * Generate a layout definition from an array of keys
+   * @param {string[]} keys - Array of key labels
+   * @returns {string} Layout definition
+   */
+  function generateLayoutFromKeys(keys) {
+    // Try to detect layout size
+    // Common sizes: 36 (3x6 + 3 thumb), 42 (3x6 + 3 thumb per hand), 44, 48
+    const count = keys.length;
+    
+    let rows, cols, thumbCount, split;
+    
+    if (count === 36) {
+      // Sweep/Ferris style: 3x5 + 2 thumb per hand
+      rows = 3;
+      cols = 5;
+      thumbCount = 3;
+      split = true;
+    } else if (count === 42) {
+      // Corne style: 3x6 + 3 thumb per hand
+      rows = 3;
+      cols = 6;
+      thumbCount = 3;
+      split = true;
+    } else if (count === 48) {
+      // Lily58 style: 4x6 + 4 thumb
+      rows = 4;
+      cols = 6;
+      thumbCount = 4;
+      split = true;
+    } else {
+      // Generic: assume 3 rows, figure out columns
+      rows = 3;
+      split = true;
+      thumbCount = Math.max(2, Math.floor(count / 10));
+      const mainKeys = count - (thumbCount * 2);
+      cols = Math.ceil(mainKeys / (rows * 2));
+    }
+
+    // Build the layout string
+    let layout = `[layout:zmk-import]
+rows: ${rows}
+columns: ${cols},${cols}
+thumb: ${thumbCount},${thumbCount}
+split: ${split}
+stagger: none
+
+`;
+
+    // Split keys into rows
+    const keysPerRow = cols * 2;
+    let keyIndex = 0;
+    
+    for (let r = 0; r < rows; r++) {
+      const leftKeys = [];
+      const rightKeys = [];
+      
+      for (let c = 0; c < cols; c++) {
+        if (keyIndex < keys.length) {
+          leftKeys.push(keys[keyIndex++]);
+        }
+      }
+      for (let c = 0; c < cols; c++) {
+        if (keyIndex < keys.length) {
+          rightKeys.push(keys[keyIndex++]);
+        }
+      }
+      
+      layout += `row${r}: ${leftKeys.join(' ')} | ${rightKeys.join(' ')}\n`;
+    }
+
+    // Thumb row
+    const leftThumb = [];
+    const rightThumb = [];
+    for (let t = 0; t < thumbCount; t++) {
+      if (keyIndex < keys.length) {
+        leftThumb.push(keys[keyIndex++]);
+      }
+    }
+    for (let t = 0; t < thumbCount; t++) {
+      if (keyIndex < keys.length) {
+        rightThumb.push(keys[keyIndex++]);
+      }
+    }
+    layout += `thumb: ${leftThumb.join(' ')} | ${rightThumb.join(' ')}\n`;
+
+    return layout;
   }
 
   /**
