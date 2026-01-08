@@ -132,39 +132,41 @@ export function createLayoutEditorView(container, options = {}) {
         <div class="validation-error" style="display: none;"></div>
       </section>
 
-      <section class="editor-help">
-        <table class="help-table">
-          <thead><tr><th colspan="2">Structure</th></tr></thead>
-          <tbody>
-            <tr><td><code>[layout:name]</code></td><td>Define layout name</td></tr>
-            <tr><td><code>rows: 3</code></td><td>Number of rows</td></tr>
-            <tr><td><code>columns: 6,6</code></td><td>Keys per hand</td></tr>
-            <tr><td><code>split: true</code></td><td>Split keyboard</td></tr>
-          </tbody>
-        </table>
+      <details class="editor-help">
+        <summary class="help-toggle">Syntax Help <kbd>?</kbd></summary>
+        <div class="help-tables">
+          <table class="help-table">
+            <thead><tr><th colspan="2">Structure</th></tr></thead>
+            <tbody>
+              <tr><td><code>[layout:name]</code></td><td>Define layout name</td></tr>
+              <tr><td><code>rows: 3</code></td><td>Number of rows</td></tr>
+              <tr><td><code>columns: 6,6</code></td><td>Keys per hand</td></tr>
+              <tr><td><code>split: true</code></td><td>Split keyboard</td></tr>
+            </tbody>
+          </table>
 
-        <table class="help-table">
-          <thead><tr><th colspan="2">Rows &amp; Keys</th></tr></thead>
-          <tbody>
-            <tr><td><code>row0: q w e | r t y</code></td><td>Use <code>|</code> for split</td></tr>
-            <tr><td><code>thumb:</code> or <code>thumb0:</code></td><td>Thumb row(s)</td></tr>
-            <tr><td><code>spc:2</code> / <code>¦:0.5</code></td><td>Custom width</td></tr>
-            <tr><td><code>_</code> / <code>¦</code></td><td>Blank / gap</td></tr>
-          </tbody>
-        </table>
+          <table class="help-table">
+            <thead><tr><th colspan="2">Rows &amp; Keys</th></tr></thead>
+            <tbody>
+              <tr><td><code>row0: q w e | r t y</code></td><td>Use <code>|</code> for split</td></tr>
+              <tr><td><code>thumb:</code> or <code>thumb0:</code></td><td>Thumb row(s)</td></tr>
+              <tr><td><code>spc:2</code> / <code>¦:0.5</code></td><td>Custom width</td></tr>
+              <tr><td><code>_</code> / <code>¦</code></td><td>Blank / gap</td></tr>
+            </tbody>
+          </table>
 
-        <table class="help-table">
-          <thead><tr><th colspan="2">Fingers</th></tr></thead>
-          <tbody>
-            <tr><td><code>fingers:</code></td><td>Start finger section</td></tr>
-            <tr><td><code>row0: 0 1 2 | 7 8 9</code></td><td>One per key</td></tr>
-            <tr><td>0-4 Left</td><td>pinky→thumb</td></tr>
-            <tr><td>5-9 Right</td><td>thumb→pinky</td></tr>
-          </tbody>
-        </table>
-
+          <table class="help-table">
+            <thead><tr><th colspan="2">Fingers</th></tr></thead>
+            <tbody>
+              <tr><td><code>fingers:</code></td><td>Start finger section</td></tr>
+              <tr><td><code>row0: 0 1 2 | 7 8 9</code></td><td>One per key</td></tr>
+              <tr><td>0-4 Left</td><td>pinky→thumb</td></tr>
+              <tr><td>5-9 Right</td><td>thumb→pinky</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p class="help-hint"><kbd>Esc</kbd> back • <kbd>Ctrl+S</kbd> save</p>
-      </section>
+      </details>
     `;
 
     container.appendChild(view);

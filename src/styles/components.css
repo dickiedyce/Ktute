@@ -230,12 +230,50 @@
   color: var(--text-muted);
 }
 
-/* Editor Help - 3 column table layout */
+/* Editor Help - toggleable */
 .editor-help {
+  margin-top: auto;
+}
+
+.help-toggle {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  padding: var(--space-2) 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.help-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.help-toggle::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform 0.15s ease;
+}
+
+.editor-help[open] .help-toggle::before {
+  transform: rotate(90deg);
+}
+
+.help-toggle kbd {
+  background: var(--bg-secondary);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+.help-tables {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-3);
   align-items: start;
+  margin-top: var(--space-2);
 }
 
 .help-table {
